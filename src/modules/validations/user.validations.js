@@ -7,6 +7,7 @@ export const signupSchema = Joi.object({
     password: Joi.string().pattern(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/).required(),
     DateOB: Joi.string(),
     skills: Joi.optional(),
+    role: Joi.optional(),
     address: Joi.optional(),
 });
 
