@@ -44,7 +44,7 @@ export const companyEmailTemplate = (emailToken) => {
             <h2>Confirmation</h2>
             <p>please click the button below:</p>
             <p>
-                <a href="http://localhost:10000/api/v1/company/verify/${emailToken}" class="btn">Confirm Email</a>
+                <a href="https://job-search-back-end-application.onrender.com/api/v1/company/verify/${emailToken}" class="btn">Confirm Email</a>
             </p>
             <p>If you did not add company for our service, please disregard this email.</p>
             <p>Best regards,<br>Job Search</p>
@@ -100,7 +100,7 @@ export const emailTemplate = (emailToken) => {
             <h2>Confirmation</h2>
             <p>please click the button below:</p>
             <p>
-                <a href="http://localhost:10000/api/v1/user/verify/${emailToken}" class="btn">Confirm Email</a>
+                <a href="https://job-search-back-end-application.onrender.com/api/v1/user/verify/${emailToken}" class="btn">Confirm Email</a>
             </p>
             <p>If you did not sign up for our service, please disregard this email.</p>
             <p>Best regards,<br>Job Search</p>
@@ -156,7 +156,7 @@ export const resetTemplate = (resetPasswordToken) => {
             <h2>Confirmation</h2>
             <p>please click the button below:</p>
             <p>
-                <a href="http://localhost:10000/api/v1/user/reset/password/${resetPasswordToken}" class="btn">Reset Password</a>
+                <a href="https://job-search-back-end-application.onrender.com/api/v1/user/reset/password/${resetPasswordToken}" class="btn">Reset Password</a>
             </p>
             <p>Best regards,<br>Job Search</p>
         </div>
