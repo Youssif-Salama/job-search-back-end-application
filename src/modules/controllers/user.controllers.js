@@ -36,10 +36,12 @@ export const signup = catchAsyncError(async (req, res) => {
     2- if yes make token
 */
 export const login = catchAsyncError(async (req, res) => {
-    const { email, phone } = req.body;
+    const { email, phone,password } = req.body;
     const result = await userModel.findOne({ $or: [{ email }, { phone }] });
     if (!result) throw new AppError("User does not exist, please sign up", 400);
-    const { email: userEmail, phone: phoneNum, _id, fullName, role } = result;
+    const { email: userEmail, phone: phoneNum, _id, fullName, role,password:hashedPassword } = result;
+    const isPasswordCorrect=bcrypt.compareSync(password,hashedPassword);
+    if(!isPasswordCorrect) throw new AppError("password is in correct",400);
     const userToken = jwt.sign({ userEmail, phoneNum, _id, fullName, role }, process.env.TOKEN_KEY, { expiresIn: "2hr" });
     result.loggedIn = true;
     await result.save();
