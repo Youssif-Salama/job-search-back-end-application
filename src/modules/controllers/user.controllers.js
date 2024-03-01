@@ -37,14 +37,15 @@ export const signup = catchAsyncError(async (req, res) => {
 */
 export const login = catchAsyncError(async (req, res) => {
     const { email, phone } = req.body;
-    const result = await userModel.findOne({ $or: [{ email }, { phone }] })
-    if (!result) throw new AppError("user not exist ,please signup", 400)
+    const result = await userModel.findOne({ $or: [{ email }, { phone }] });
+    if (!result) throw new AppError("User does not exist, please sign up", 400);
     const { email: userEmail, phone: phoneNum, _id, fullName, role } = result;
     const userToken = jwt.sign({ userEmail, phoneNum, _id, fullName, role }, process.env.TOKEN_KEY, { expiresIn: "2hr" });
     result.loggedIn = true;
     await result.save();
-    res.json(200, { message: "success", token: userToken });
-})
+    res.status(200).json({ message: "Success", token: userToken });
+});
+
 
 export const getDocumentData = catchAsyncError(async (req, res) => {
     const { _id } = req.decodedToken;
