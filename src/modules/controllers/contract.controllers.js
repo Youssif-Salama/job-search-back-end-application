@@ -1,6 +1,8 @@
 import { AppError, CatchAsyncErrors } from "../../utils/Error.Handeler.js";
+import { addContractSystem } from "../middlewares/contract.middleware.js";
 import { addressModel } from "../models/addrerss.model.js";
 import { contractModel } from "../models/contract.model.js";
+import { contractSystemModel } from "../models/contract.system.model.js";
 import { fileModel } from "../models/file.model.js";
 
 export const addContract = CatchAsyncErrors(async (req, res) => {
@@ -20,14 +22,21 @@ export const addContract = CatchAsyncErrors(async (req, res) => {
         Notes,
         ContractNumber,
         IdNumber,
+        AgentIdNumber,
         TaxNumber,
         Agent,
         AdditionalPhone = null,
+        AgentAdditionalPhone = null,
         Phone,
+        AgentPhone,
         Email,
+        AgentEmail,
         Role,
-        Name
+        Name,
+        ReleaseDate
     } = req.body;
+
+
 
     let FileId = null;
     let AddressId = null;
@@ -53,6 +62,7 @@ export const addContract = CatchAsyncErrors(async (req, res) => {
     if (!address) throw new AppError("خظأ في تخزين العنوان", 400);
     AddressId = address._id;
 
+
     const contract = await contractModel.create({
         Times,
         PaymentWay,
@@ -70,10 +80,16 @@ export const addContract = CatchAsyncErrors(async (req, res) => {
         Role,
         Name,
         FileId,
-        AddressId
+        AddressId,
+        ReleaseDate,
+        AgentIdNumber,
+        AgentAdditionalPhone,
+        AgentPhone,
+        AgentEmail
     });
 
     if (!contract) throw new AppError("خظأ في تخزين العقد", 400);
+    await addContractSystem(TotalPrice, Times, PaymentWay, ReleaseDate, contract._id);
 
     res.status(201).json({
         status: "success",
@@ -89,6 +105,7 @@ export const deleteContract = CatchAsyncErrors(async (req, res) => {
     if (!contract) throw new AppError("العقد غير موجود", 404);
     await fileModel.findByIdAndDelete(contract.FileId);
     await addressModel.findByIdAndDelete(contract.AddressId);
+    await contractSystemModel.deleteMany({ ContractId: contract._id });
 
     const deleteContract = await contractModel.findByIdAndDelete(req.params.id);
     if (!deleteContract) throw new AppError("خظأ في حذف العقد", 400);

@@ -5,6 +5,7 @@ import { attachGetQuery } from "../../middelwares/Attach.Query.js";
 import { contractModel } from "../models/contract.model.js";
 import { filterQuery, pagination, search, sort } from "../../middelwares/Features.middleware.js";
 import { execute } from "../../middelwares/Execution.js";
+import { contractSystemModel } from "../models/contract.system.model.js";
 
 
 const contractRouter = Router();
@@ -56,5 +57,20 @@ contractRouter.get("/search", attachGetQuery(contractModel), filterQuery({ field
         }
     }
 ));
+
+contractRouter.get("/:id/systems", attachGetQuery(contractSystemModel), filterQuery({ fieldName: "ContractId", paramName: "id" }), pagination(10), sort(), execute(
+    {
+        status: 200,
+        result: {
+            message: "تم"
+        }
+    },
+    {
+        status: 400,
+        result: {
+            message: "فشل"
+        }
+    }
+))
 
 export { contractRouter }

@@ -70,7 +70,7 @@ export const pagination = (limit) => {
                 currentPage,
                 nextPage,
                 prevPage,
-                numberOfPages: totalDocuments,
+                numberOfRows: totalDocuments,
             };
 
             next();

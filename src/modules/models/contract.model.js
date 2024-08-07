@@ -6,42 +6,58 @@ const contractSchema = new mongoose.Schema({
         type: String,
         minlength: [3, "يجب اللا يقل الاسم عن ثلاثه احرف"],
         maxlength: [25, "يجب اللا يزيد الاسم عن 25 حرف"],
-        required:true
+        required: true
     },
     Role: {
         type: String,
         enum: ["lessor", "tenant"],
-        required:true
+        required: true
     },
     Email: {
         type: String,
         match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        required:true
+        required: true
+    },
+    AgentEmail: {
+        type: String,
+        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        required: true
     },
     Phone: {
         type: String,
-        required:true
+        required: true
+    },
+    AgentPhone: {
+        type: String,
+        required: true
     },
     AdditionalPhone: {
+        type: String,
+    },
+    AgentAdditionalPhone: {
         type: String,
     },
     Agent: {
         type: String,
         minlength: [3, "يجب اللا يقل اسم العميل عن ثلاثه احرف"],
         maxlength: [25, "يجب اللا يزيد اسم العميل عن 25 حرف"],
-        required:true
+        required: true
     },
     TaxNumber: {
         type: String,
-        required:true
+        required: true
     },
     IdNumber: {
         type: String,
-        required:true
+        required: true
+    },
+    AgentIdNumber: {
+        type: String,
+        required: true
     },
     ContractNumber: {
         type: String,
-        required:true
+        required: true
     },
     Notes: {
         type: String,
@@ -53,27 +69,35 @@ const contractSchema = new mongoose.Schema({
     },
     ContractRegisteredOn: {
         type: String,
-        required:true
+        required: true
     },
     TotalPrice: {
         type: String,
-        required:true
+        required: true
     },
     PaymentWay: {
         type: String,
-        required:true
+        enum: ["1", "3", "6", "12"],
+        required: true
     },
     Times: {
         type: String,
-        required:true
+        required: true
     },
     FileId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "File"
     },
     AddressId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Address"
+    },
+    ReleaseDate: {
+        type: Date,
+        required: true
+    },
+    DueDate: {
+        type: Date,
     }
 }, { timestamps: true })
 
