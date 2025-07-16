@@ -71,7 +71,7 @@ switch (process.env.NODE_ENV) {
     CategoryModule,
     DoctorModule,
     CredentialModule,
-    FileModule
+    // FileModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -25,16 +25,29 @@ let FileController = class FileController {
         this.storageService = storageService;
     }
     async doctorFiles(files) {
-        const [cardUploaded, fidUploaded, sidUploaded] = await Promise.all([
-            this.storageService.uploadOne(files.card?.[0]),
-            this.storageService.uploadOne(files.fid?.[0]),
-            this.storageService.uploadOne(files.sid?.[0]),
+        const bucket = 'doctors';
+        const uploadOneFile = async (file) => {
+            if (!file)
+                return null;
+            try {
+                return await this.storageService.uploadFile(file, bucket);
+            }
+            catch (error) {
+                throw new common_1.ConflictException(`File upload failed: ${file.originalname}`);
+            }
+        };
+        const [cardResult, fidResult, sidResult] = await Promise.all([
+            uploadOneFile(files.card?.[0]),
+            uploadOneFile(files.fid?.[0]),
+            uploadOneFile(files.sid?.[0])
         ]);
-        const hasError = [cardUploaded, fidUploaded, sidUploaded].some((file) => file?.error);
         return {
-            card: cardUploaded,
-            fid: fidUploaded,
-            sid: sidUploaded,
+            message: 'Files uploaded successfully',
+            results: {
+                card: cardResult,
+                fid: fidResult,
+                sid: sidResult,
+            },
         };
     }
 };

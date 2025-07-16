@@ -1,59 +1,87 @@
-import { ConflictException, Injectable } from "@nestjs/common";
-import { SupaBaseUtilService } from "./supabase.util";
+import { Injectable } from "@nestjs/common";
+import { CloudinaryBaseUtilService } from "./cloudinary.util";
+import * as streamifier from "streamifier";
+
+interface FileObjType {
+    fieldname: string;
+    originalname: string;
+    encoding: string;
+    mimetype: string;
+    buffer: Buffer;
+    size: number;
+}
+
+interface CloudinaryUploadResult {
+    public_id: string;
+    secure_url: string;
+}
 
 @Injectable()
 export class StorageUtilService {
-    constructor(private readonly supabaseService: SupaBaseUtilService) { }
+    private cloudinaryStorageClient: any;
 
-    async upload(bucket: string, file: Buffer, path: string, contentType: string) {
-        const supabase = this.supabaseService.getSupaBaseClient();
+    constructor(private readonly cloudinaryService: CloudinaryBaseUtilService) {
+        this.cloudinaryStorageClient = this.cloudinaryService.getCloudinaryClient();
+    }
 
-        const { data, error } = await supabase.storage
-            .from(bucket)
-            .upload(path, file, {
-                contentType,
-                upsert: true,
-            });
 
-        if (error) return { error, bucket, path, contentType };
-        const { data: publicUrlContainer } = supabase.storage.from(bucket).getPublicUrl(data?.path)
+    private makeCloudinaryStream(bucket: string, public_id: string, resource_type: string) {
         return {
-            path: data?.path,
-            fullPath: data?.fullPath,
-            publicUrl: publicUrlContainer.publicUrl,
-            contentType
+            streamUploader: (buffer: Buffer): Promise<CloudinaryUploadResult> => {
+                return new Promise((resolve, reject) => {
+                    const uploadStream = this.cloudinaryStorageClient.uploader.upload_stream(
+                        { folder: bucket, resource_type, public_id },
+                        (error: any, result: CloudinaryUploadResult) => {
+                            if (error) {
+                                reject(error);
+                            } else {
+                                resolve(result);
+                            }
+                        }
+                    );
+                    streamifier.createReadStream(buffer).pipe(uploadStream);
+                });
+            },
+        };
+    }
+
+    private generatePublicId(bucket: string, originalname: string, fieldname: string): string {
+        let randomWord = "";
+        const digitsArr = "abcdefghijklmnopqrstuvwxyz1234567890".split("");
+        const loops = 4;
+
+        for (let i = 0; i < loops; i++) {
+            const randomIndex = Math.floor(Math.random() * digitsArr.length);
+            randomWord += digitsArr[randomIndex];
         }
-    }
 
-    async getPublicUrl(bucket: string, path: string) {
-        const supabase = this.supabaseService.getSupaBaseClient();
-        const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-        return data;
-    }
-
-    async uploadOne(file?: Express.Multer.File) {
-        if (!file) return null;
-        const uniqueName = `${file.fieldname}-${Date.now()}-${Math.random()
-            .toString(36)
-            .substring(2)}`;
-        return await this.upload(
-            'doctor',
-            file.buffer,
-            uniqueName,
-            file.mimetype,
+        return (
+            bucket +
+            "-" +
+            fieldname +
+            "-" +
+            originalname +
+            "-drs-" +
+            randomWord +
+            "-drs-" +
+            new Date().getFullYear() +
+            "/" +
+            (new Date().getMonth() + 1)
         );
-    };
-
-    async delete(bucket: string, paths: string[], type: 'normal' | 'cascade') {
-        const supabase = this.supabaseService.getSupaBaseClient();
-        if (!bucket || paths?.length == 0) return false;
-        const { data, error } = await supabase.storage.from(bucket).remove([...paths]);
-        if (error) throw new ConflictException(error.message)
-        else {
-            if (type === 'cascade') {
-                return true
-            }
-            return data;
-        }
     }
+
+    async uploadFile(fileObj: FileObjType, bucket: string) {
+        const { fieldname, originalname, buffer } = fileObj;
+        const generatedPublicId = this.generatePublicId(bucket, originalname, fieldname);
+        const uploader = this.makeCloudinaryStream(bucket, generatedPublicId, 'image');
+        console.log({ uploader })
+        const uploadFileResult = await uploader.streamUploader(buffer);
+
+        return {
+            url: uploadFileResult.secure_url,
+            public_id: uploadFileResult.public_id,
+        };
+    }
+
+    
 }

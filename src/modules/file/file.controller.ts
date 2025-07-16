@@ -37,32 +37,30 @@ export class FileController {
             sid?: Express.Multer.File[];
         },
     ) {
-        const [cardUploaded, fidUploaded, sidUploaded] = await Promise.all([
-            this.storageService.uploadOne(files.card?.[0]),
-            this.storageService.uploadOne(files.fid?.[0]),
-            this.storageService.uploadOne(files.sid?.[0]),
+        const bucket = 'doctors';
+
+        const uploadOneFile = async (file?: Express.Multer.File) => {
+            if (!file) return null;
+            try {
+                return await this.storageService.uploadFile(file, bucket);
+            } catch (error) {
+                throw new ConflictException(`File upload failed: ${file.originalname}`);
+            }
+        };
+
+        const [cardResult, fidResult, sidResult] = await Promise.all([
+            uploadOneFile(files.card?.[0]),
+            uploadOneFile(files.fid?.[0]),
+            uploadOneFile(files.sid?.[0])
         ]);
-        const hasError = [cardUploaded, fidUploaded, sidUploaded].some((file) => file?.error);
-
-        // if (hasError) {
-        //     const successFilesUploaded = [cardUploaded, fidUploaded, sidUploaded]
-        //         .filter((file) => file && !file.error);
-
-        //     const pathsToDelete = successFilesUploaded
-        //         .map(file => file?.path)
-        //         .filter((path): path is string => !!path);
-
-        //     if (pathsToDelete.length > 0) {
-        //         await this.storageService.delete('doctor', pathsToDelete, 'cascade');
-        //     }
-
-        //     throw new ConflictException('Something went wrong while uploading files!');
-        // }
 
         return {
-            card: cardUploaded,
-            fid: fidUploaded,
-            sid: sidUploaded,
+            message: 'Files uploaded successfully',
+            results: {
+                card: cardResult,
+                fid: fidResult,
+                sid: sidResult,
+            },
         };
     }
 }

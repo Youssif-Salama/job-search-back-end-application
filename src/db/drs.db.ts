@@ -26,7 +26,7 @@ import { WorkingHoursEntity } from "src/shared/entities/workinHours.entity";
           username: configService.get<string>('envConfig.db.user'),
           password: configService.get<string>('envConfig.db.pass'),
           database: configService.get<string>('envConfig.db.name'),
-          entities: [AdminEntity, PlanEntity, DoctorEntity, AppointmentEntity, CategoryEntity, RateEntity, RequestEntity, ReservationEntity, WorkingHoursEntity,CredentialEntity],
+          entities: [AdminEntity, PlanEntity, DoctorEntity, AppointmentEntity, CategoryEntity, RateEntity, RequestEntity, ReservationEntity, WorkingHoursEntity, CredentialEntity],
           synchronize: true,
           logging: isDevelopment,
           ssl: !isDevelopment ? { rejectUnauthorized: false } : false

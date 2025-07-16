@@ -11,13 +11,13 @@ const common_1 = require("@nestjs/common");
 const file_service_1 = require("./file.service");
 const file_controller_1 = require("./file.controller");
 const storage_util_1 = require("../../common/utils/storage.util");
-const supabase_util_1 = require("../../common/utils/supabase.util");
+const cloudinary_util_1 = require("../../common/utils/cloudinary.util");
 let FileModule = class FileModule {
 };
 exports.FileModule = FileModule;
 exports.FileModule = FileModule = __decorate([
     (0, common_1.Module)({
-        providers: [file_service_1.FileService, storage_util_1.StorageUtilService, supabase_util_1.SupaBaseUtilService],
+        providers: [file_service_1.FileService, storage_util_1.StorageUtilService, cloudinary_util_1.CloudinaryBaseUtilService],
         controllers: [file_controller_1.FileController]
     })
 ], FileModule);

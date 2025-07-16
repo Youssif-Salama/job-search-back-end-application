@@ -11,62 +11,67 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StorageUtilService = void 0;
 const common_1 = require("@nestjs/common");
-const supabase_util_1 = require("./supabase.util");
+const cloudinary_util_1 = require("./cloudinary.util");
+const streamifier = require("streamifier");
 let StorageUtilService = class StorageUtilService {
-    supabaseService;
-    constructor(supabaseService) {
-        this.supabaseService = supabaseService;
+    cloudinaryService;
+    cloudinaryStorageClient;
+    constructor(cloudinaryService) {
+        this.cloudinaryService = cloudinaryService;
+        this.cloudinaryStorageClient = this.cloudinaryService.getCloudinaryClient();
     }
-    async upload(bucket, file, path, contentType) {
-        const supabase = this.supabaseService.getSupaBaseClient();
-        const { data, error } = await supabase.storage
-            .from(bucket)
-            .upload(path, file, {
-            contentType,
-            upsert: true,
-        });
-        if (error)
-            return { error, bucket, path, contentType };
-        const { data: publicUrlContainer } = supabase.storage.from(bucket).getPublicUrl(data?.path);
+    makeCloudinaryStream(bucket, public_id, resource_type) {
         return {
-            path: data?.path,
-            fullPath: data?.fullPath,
-            publicUrl: publicUrlContainer.publicUrl,
-            contentType
+            streamUploader: (buffer) => {
+                return new Promise((resolve, reject) => {
+                    const uploadStream = this.cloudinaryStorageClient.uploader.upload_stream({ folder: bucket, resource_type, public_id }, (error, result) => {
+                        if (error) {
+                            reject(error);
+                        }
+                        else {
+                            resolve(result);
+                        }
+                    });
+                    streamifier.createReadStream(buffer).pipe(uploadStream);
+                });
+            },
         };
     }
-    async getPublicUrl(bucket, path) {
-        const supabase = this.supabaseService.getSupaBaseClient();
-        const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-        return data;
-    }
-    async uploadOne(file) {
-        if (!file)
-            return null;
-        const uniqueName = `${file.fieldname}-${Date.now()}-${Math.random()
-            .toString(36)
-            .substring(2)}`;
-        return await this.upload('doctor', file.buffer, uniqueName, file.mimetype);
-    }
-    ;
-    async delete(bucket, paths, type) {
-        const supabase = this.supabaseService.getSupaBaseClient();
-        if (!bucket || paths?.length == 0)
-            return false;
-        const { data, error } = await supabase.storage.from(bucket).remove([...paths]);
-        if (error)
-            throw new common_1.ConflictException(error.message);
-        else {
-            if (type === 'cascade') {
-                return true;
-            }
-            return data;
+    generatePublicId(bucket, originalname, fieldname) {
+        let randomWord = "";
+        const digitsArr = "abcdefghijklmnopqrstuvwxyz1234567890".split("");
+        const loops = 4;
+        for (let i = 0; i < loops; i++) {
+            const randomIndex = Math.floor(Math.random() * digitsArr.length);
+            randomWord += digitsArr[randomIndex];
         }
+        return (bucket +
+            "-" +
+            fieldname +
+            "-" +
+            originalname +
+            "-drs-" +
+            randomWord +
+            "-drs-" +
+            new Date().getFullYear() +
+            "/" +
+            (new Date().getMonth() + 1));
+    }
+    async uploadFile(fileObj, bucket) {
+        const { fieldname, originalname, buffer } = fileObj;
+        const generatedPublicId = this.generatePublicId(bucket, originalname, fieldname);
+        const uploader = this.makeCloudinaryStream(bucket, generatedPublicId, 'image');
+        console.log({ uploader });
+        const uploadFileResult = await uploader.streamUploader(buffer);
+        return {
+            url: uploadFileResult.secure_url,
+            public_id: uploadFileResult.public_id,
+        };
     }
 };
 exports.StorageUtilService = StorageUtilService;
 exports.StorageUtilService = StorageUtilService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [supabase_util_1.SupaBaseUtilService])
+    __metadata("design:paramtypes", [cloudinary_util_1.CloudinaryBaseUtilService])
 ], StorageUtilService);
 //# sourceMappingURL=storage.util.js.map

@@ -26,9 +26,10 @@ declare const _default: (() => {
     links: {
         updateMyEmailRedirectionLink: string | undefined;
     };
-    supabase: {
-        url: string | undefined;
+    cloudinary: {
+        name: string | undefined;
         key: string | undefined;
+        secret: string | undefined;
     };
 }) & import("@nestjs/config").ConfigFactoryKeyHost<{
     system: {
@@ -58,9 +59,10 @@ declare const _default: (() => {
     links: {
         updateMyEmailRedirectionLink: string | undefined;
     };
-    supabase: {
-        url: string | undefined;
+    cloudinary: {
+        name: string | undefined;
         key: string | undefined;
+        secret: string | undefined;
     };
 }>;
 export default _default;

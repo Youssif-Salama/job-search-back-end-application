@@ -62,6 +62,7 @@ let PlanService = class PlanService {
                 .getRawMany(),
             this.planRepo.count(),
         ]);
+        console.log(count);
         const items = rawData.map(plan => ({
             id: plan.id,
             title: plan.title,

@@ -7,50 +7,20 @@ export declare class FileController {
         fid?: Express.Multer.File[];
         sid?: Express.Multer.File[];
     }): Promise<{
-        card: {
-            error: import("@supabase/storage-js").StorageError;
-            bucket: string;
-            path: string;
-            contentType: string;
-            fullPath?: undefined;
-            publicUrl?: undefined;
-        } | {
-            path: string;
-            fullPath: string;
-            publicUrl: string;
-            contentType: string;
-            error?: undefined;
-            bucket?: undefined;
-        } | null;
-        fid: {
-            error: import("@supabase/storage-js").StorageError;
-            bucket: string;
-            path: string;
-            contentType: string;
-            fullPath?: undefined;
-            publicUrl?: undefined;
-        } | {
-            path: string;
-            fullPath: string;
-            publicUrl: string;
-            contentType: string;
-            error?: undefined;
-            bucket?: undefined;
-        } | null;
-        sid: {
-            error: import("@supabase/storage-js").StorageError;
-            bucket: string;
-            path: string;
-            contentType: string;
-            fullPath?: undefined;
-            publicUrl?: undefined;
-        } | {
-            path: string;
-            fullPath: string;
-            publicUrl: string;
-            contentType: string;
-            error?: undefined;
-            bucket?: undefined;
-        } | null;
+        message: string;
+        results: {
+            card: {
+                url: string;
+                public_id: string;
+            } | null;
+            fid: {
+                url: string;
+                public_id: string;
+            } | null;
+            sid: {
+                url: string;
+                public_id: string;
+            } | null;
+        };
     }>;
 }

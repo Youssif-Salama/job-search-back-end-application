@@ -11,12 +11,12 @@ export class PlanService {
     @InjectRepository(PlanEntity)
     private readonly planRepo: Repository<PlanEntity>,
   ) { }
-  addPlan(data: addPlanDto & {lsUpBy:number}): Promise<PlanEntity> {
-    const { title, description, price,lsUpBy } = data;
-    const addNewPlan = this.planRepo.create({ title, description, price,lsUpBy });
+  addPlan(data: addPlanDto & { lsUpBy: number }): Promise<PlanEntity> {
+    const { title, description, price, lsUpBy } = data;
+    const addNewPlan = this.planRepo.create({ title, description, price, lsUpBy });
     return this.planRepo.save(addNewPlan);
   }
-  async updatePlan(data: updatePlanDto & {lsUpBy:number}, id: number): Promise<PlanEntity> {
+  async updatePlan(data: updatePlanDto & { lsUpBy: number }, id: number): Promise<PlanEntity> {
     const plan = await this.planRepo.findOneBy({ id });
     if (!plan) {
       throw new NotFoundException('Plan not found');
@@ -44,7 +44,7 @@ export class PlanService {
     const queryBuilder = this.planRepo
       .createQueryBuilder('plan')
       .select([
-        'plan.id',
+        'plan.id AS id',
         `plan.title ->> :localeCode AS title`,
         `plan.description ->> :localeCode AS description`,
         `plan.price ->> :localeCode AS price`,
@@ -85,7 +85,7 @@ export class PlanService {
     const plan = await this.planRepo
       .createQueryBuilder('plan')
       .select([
-        'plan.id',
+        'plan.id AS id',
         `plan.title ->> :localeCode AS title`,
         `plan.description ->> :localeCode AS description`,
         `plan.price ->> :localeCode AS price`,

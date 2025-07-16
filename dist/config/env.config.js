@@ -41,9 +41,10 @@ exports.default = (0, config_1.registerAs)('envConfig', () => {
         links: {
             updateMyEmailRedirectionLink: process.env.UPDATE_MY_EMAIL_REDIRECTION_LINK
         },
-        supabase: {
-            url: process.env.SUPABASE_URL,
-            key: process.env.SUPABASE_KEY
+        cloudinary: {
+            name: process.env.CLOUDINARY_NAME,
+            key: process.env.CLOUDINARY_API_KEY,
+            secret: process.env.CLOUDINARY_API_SECRET
         }
     };
 });
