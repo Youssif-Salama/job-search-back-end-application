@@ -25,8 +25,7 @@ export class PlanController {
   constructor(private readonly planService: PlanService) { }
 
   @Post()
-  @Public()
-  // @ApiBearerAuth('access-token')
+  @ApiBearerAuth('access-token')
   addPlan(@Body() data: addPlanDto,@Req() req:Request ): Promise<PlanEntity> {
     const { price } = data;
     if (price.en !== price.ar) {
