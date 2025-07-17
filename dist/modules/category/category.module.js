@@ -15,6 +15,8 @@ const auth_guard_1 = require("../../guards/auth.guard");
 const typeorm_1 = require("@nestjs/typeorm");
 const categoris_entity_1 = require("../../shared/entities/categoris.entity");
 const jwt_utils_1 = require("../../common/utils/jwt.utils");
+const storage_util_1 = require("../../common/utils/storage.util");
+const cloudinary_util_1 = require("../../common/utils/cloudinary.util");
 let CategoryModule = class CategoryModule {
 };
 exports.CategoryModule = CategoryModule;
@@ -25,6 +27,8 @@ exports.CategoryModule = CategoryModule = __decorate([
         providers: [
             category_service_1.CategoryService,
             jwt_utils_1.JwtUtilService,
+            storage_util_1.StorageUtilService,
+            cloudinary_util_1.CloudinaryBaseUtilService,
             {
                 provide: core_1.APP_GUARD,
                 useClass: auth_guard_1.AuthGuard,

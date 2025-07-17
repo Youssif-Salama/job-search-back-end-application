@@ -17,5 +17,22 @@ export declare class StorageUtilService {
         url: string;
         public_id: string;
     }>;
+    uploadFiles(filesObjs: FileObjType[], bucket: string): Promise<{
+        url: string;
+        public_id: string;
+    }[]>;
+    destroyFiles(publicIdList: string[], bucket: string): Promise<({
+        result: any;
+        public_id: string;
+        success: boolean;
+    } | {
+        error: any;
+        public_id: string;
+        success: boolean;
+    })[]>;
+    replaceFiles(publicIdList: string[], bucket: string, files: FileObjType[]): Promise<{
+        url: string;
+        public_id: string;
+    }[]>;
 }
 export {};

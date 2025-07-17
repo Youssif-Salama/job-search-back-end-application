@@ -10,48 +10,79 @@ import {
   Query,
   UseInterceptors,
   Req,
+  UploadedFile,
 } from '@nestjs/common';
-import { addCategoryDto, updateCategoryDto } from 'src/shared/dtos/category.dto';
-import { ApiBearerAuth, ApiHeader, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { addCategoryDto, CategoryFormDataDto, ImgDto, updateCategoryDto } from 'src/shared/dtos/category.dto';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiHeader, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { CategoryEntity } from 'src/shared/entities/categoris.entity';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { Public } from 'src/common/decorators/public.decorator';
 import LocalizationInterceptor from 'src/common/interceptors/localization.interceptor';
 import { CategoryService } from './category.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { StorageUtilService } from 'src/common/utils/storage.util';
 
 @Controller('category')
 export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) { }
+  constructor(private readonly categoryService: CategoryService, private readonly storageServic: StorageUtilService) { }
 
   @Post()
   @ApiBearerAuth('access-token')
-  addCategory(@Body() data: addCategoryDto): Promise<CategoryEntity> {
-    return this.categoryService.addCategory(data);
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Add a new category',
+    type: addCategoryDto,
+  })
+  @UseInterceptors(FileInterceptor('img'))
+  async addCategory(
+    @Body() data: CategoryFormDataDto,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request,
+  ): Promise<CategoryEntity> {
+    const bucket = 'categories';
+    const img = await this.storageServic.uploadFile(file, bucket);
+    if (!img) {
+      throw new Error('Image upload failed');
+    }
+    data.title = JSON.parse(data?.title);
+    data.description = JSON.parse(data?.description);
+    return this.categoryService.addCategory(data as any, img, req['user']?.id);
   }
 
-  @ApiParam({ name: 'id', required: true, type: Number })
+
   @Put(':id')
   @ApiBearerAuth('access-token')
   @HttpCode(200)
-  updateCategory(
+  @ApiParam({ name: 'id', required: true, type: Number })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Update an existing category',
+    type: updateCategoryDto,
+  })
+  @UseInterceptors(FileInterceptor("img"))
+  async updateCategory(
     @Param('id') id: number,
-    @Body() data: updateCategoryDto,
+    @Body() data: CategoryFormDataDto,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request
   ): Promise<CategoryEntity> {
-    return this.categoryService.updateCategory(data, +id);
+    data.title = JSON.parse(data?.title);
+    data.description = JSON.parse(data?.description);
+    return this.categoryService.updateCategory(data as any, +id, file, req['user']?.id);
   }
 
   @ApiParam({ name: 'id', required: true, type: Number })
   @Delete(':id')
   @ApiBearerAuth('access-token')
   @HttpCode(200)
-  deleteCategory(@Param('id') id: number): Promise<CategoryEntity> {
+  async deleteCategory(@Param('id') id: number): Promise<CategoryEntity> {
     return this.categoryService.deleteCategory(+id);
   }
 
   @Delete()
   @ApiBearerAuth('access-token')
   @HttpCode(200)
-  deleteAllCategories(): Promise<void> {
+  async deleteAllCategories(): Promise<void> {
     return this.categoryService.deleteAllCategories();
   }
 
@@ -66,7 +97,7 @@ export class CategoryController {
     description: 'The language code (e.g., en, ar)',
     required: false,
   })
-  getAllCategories(
+  async getAllCategories(
     @Query() query: { page: number; limit: number },
     @Req() req: Request
   ): Promise<Pagination<CategoryEntity>> {
@@ -82,7 +113,7 @@ export class CategoryController {
     description: 'The language code (e.g., en, ar)',
     required: false,
   })
-  getOneCategory(@Param('id') id: number, @Req() req: Request): Promise<CategoryEntity> {
+  async getOneCategory(@Param('id') id: number, @Req() req: Request): Promise<CategoryEntity> {
     return this.categoryService.getOneCategory(+id, req['localeCode']);
   }
 }

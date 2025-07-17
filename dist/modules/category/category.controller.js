@@ -19,27 +19,40 @@ const swagger_1 = require("@nestjs/swagger");
 const public_decorator_1 = require("../../common/decorators/public.decorator");
 const localization_interceptor_1 = require("../../common/interceptors/localization.interceptor");
 const category_service_1 = require("./category.service");
+const platform_express_1 = require("@nestjs/platform-express");
+const storage_util_1 = require("../../common/utils/storage.util");
 let CategoryController = class CategoryController {
     categoryService;
-    constructor(categoryService) {
+    storageServic;
+    constructor(categoryService, storageServic) {
         this.categoryService = categoryService;
+        this.storageServic = storageServic;
     }
-    addCategory(data) {
-        return this.categoryService.addCategory(data);
+    async addCategory(data, file, req) {
+        const bucket = 'categories';
+        const img = await this.storageServic.uploadFile(file, bucket);
+        if (!img) {
+            throw new Error('Image upload failed');
+        }
+        data.title = JSON.parse(data?.title);
+        data.description = JSON.parse(data?.description);
+        return this.categoryService.addCategory(data, img, req['user']?.id);
     }
-    updateCategory(id, data) {
-        return this.categoryService.updateCategory(data, +id);
+    async updateCategory(id, data, file, req) {
+        data.title = JSON.parse(data?.title);
+        data.description = JSON.parse(data?.description);
+        return this.categoryService.updateCategory(data, +id, file, req['user']?.id);
     }
-    deleteCategory(id) {
+    async deleteCategory(id) {
         return this.categoryService.deleteCategory(+id);
     }
-    deleteAllCategories() {
+    async deleteAllCategories() {
         return this.categoryService.deleteAllCategories();
     }
-    getAllCategories(query, req) {
+    async getAllCategories(query, req) {
         return this.categoryService.getAllCategories(+query.page, +query.limit, req['localeCode']);
     }
-    getOneCategory(id, req) {
+    async getOneCategory(id, req) {
         return this.categoryService.getOneCategory(+id, req['localeCode']);
     }
 };
@@ -47,20 +60,36 @@ exports.CategoryController = CategoryController;
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiBearerAuth)('access-token'),
+    (0, swagger_1.ApiConsumes)('multipart/form-data'),
+    (0, swagger_1.ApiBody)({
+        description: 'Add a new category',
+        type: category_dto_1.addCategoryDto,
+    }),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('img')),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.UploadedFile)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [category_dto_1.addCategoryDto]),
+    __metadata("design:paramtypes", [category_dto_1.CategoryFormDataDto, Object, Request]),
     __metadata("design:returntype", Promise)
 ], CategoryController.prototype, "addCategory", null);
 __decorate([
-    (0, swagger_1.ApiParam)({ name: 'id', required: true, type: Number }),
     (0, common_1.Put)(':id'),
     (0, swagger_1.ApiBearerAuth)('access-token'),
     (0, common_1.HttpCode)(200),
+    (0, swagger_1.ApiParam)({ name: 'id', required: true, type: Number }),
+    (0, swagger_1.ApiConsumes)('multipart/form-data'),
+    (0, swagger_1.ApiBody)({
+        description: 'Update an existing category',
+        type: category_dto_1.updateCategoryDto,
+    }),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)("img")),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.UploadedFile)()),
+    __param(3, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, category_dto_1.updateCategoryDto]),
+    __metadata("design:paramtypes", [Number, category_dto_1.CategoryFormDataDto, Object, Request]),
     __metadata("design:returntype", Promise)
 ], CategoryController.prototype, "updateCategory", null);
 __decorate([
@@ -117,6 +146,6 @@ __decorate([
 ], CategoryController.prototype, "getOneCategory", null);
 exports.CategoryController = CategoryController = __decorate([
     (0, common_1.Controller)('category'),
-    __metadata("design:paramtypes", [category_service_1.CategoryService])
+    __metadata("design:paramtypes", [category_service_1.CategoryService, storage_util_1.StorageUtilService])
 ], CategoryController);
 //# sourceMappingURL=category.controller.js.map

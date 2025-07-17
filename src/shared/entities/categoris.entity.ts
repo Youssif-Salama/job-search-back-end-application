@@ -17,6 +17,12 @@ export class CategoryEntity {
     ar: string
   }
 
+  @Column({ type: "jsonb", nullable: false })
+  img: {
+    url: string,
+    public_id: string
+  };
+
   @Column({ type: 'int', nullable: false })
   lsUpBy: number;
 }

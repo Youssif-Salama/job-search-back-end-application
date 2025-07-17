@@ -8,5 +8,9 @@ export declare class CategoryEntity {
         en: string;
         ar: string;
     };
+    img: {
+        url: string;
+        public_id: string;
+    };
     lsUpBy: number;
 }

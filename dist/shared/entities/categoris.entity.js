@@ -15,6 +15,7 @@ let CategoryEntity = class CategoryEntity {
     id;
     title;
     description;
+    img;
     lsUpBy;
 };
 exports.CategoryEntity = CategoryEntity;
@@ -30,6 +31,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: "jsonb", nullable: true }),
     __metadata("design:type", Object)
 ], CategoryEntity.prototype, "description", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "jsonb", nullable: false }),
+    __metadata("design:type", Object)
+], CategoryEntity.prototype, "img", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'int', nullable: false }),
     __metadata("design:type", Number)

@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {  Pagination } from 'nestjs-typeorm-paginate';
-import { addCategoryDto, updateCategoryDto } from 'src/shared/dtos/category.dto';
+import { paginate, Pagination } from 'nestjs-typeorm-paginate';
+import { StorageUtilService } from 'src/common/utils/storage.util';
+import { addCategoryDto, ImgType, updateCategoryDto } from 'src/shared/dtos/category.dto';
 import { CategoryEntity } from 'src/shared/entities/categoris.entity';
 import { Repository } from 'typeorm';
 
@@ -10,22 +11,60 @@ export class CategoryService {
   constructor(
     @InjectRepository(CategoryEntity)
     private readonly categoryRepo: Repository<CategoryEntity>,
+    private readonly storageService: StorageUtilService
   ) { }
 
-  addCategory(data: addCategoryDto): Promise<CategoryEntity> {
+  async addCategory(data: addCategoryDto, img: ImgType, lsUpBy: number): Promise<CategoryEntity> {
     const { title, description } = data;
-    const newCategory = this.categoryRepo.create({ title, description});
-    return this.categoryRepo.save(newCategory);
+    console.log({
+      title,
+      description,
+      img,
+      lsUpBy
+    })
+    const newCategory = this.categoryRepo.create({ title, description, img, lsUpBy });
+    const result = await this.categoryRepo.save(newCategory);
+    if (!result) {
+      await this.storageService.destroyFiles([img.public_id], 'categories');
+      throw new NotFoundException('Failed to create category');
+    }
+    return result;
   }
 
-  async updateCategory(data: updateCategoryDto, id: number): Promise<CategoryEntity> {
+  async updateCategory(
+    data: updateCategoryDto,
+    id: number,
+    file: Express.Multer.File,
+    lsUpBy: number
+  ): Promise<CategoryEntity> {
     const category = await this.categoryRepo.findOneBy({ id });
+
     if (!category) {
       throw new NotFoundException('Category not found');
     }
-    const updated = this.categoryRepo.merge(category, data);
+
+    const { img } = category;
+
+    let newImg = img;
+
+    if (file) {
+      const publicIdList = img?.public_id ? [img.public_id] : [];
+      const newImgs = await this.storageService.replaceFiles(publicIdList, 'categories', [file]);
+      newImg = newImgs[0] || img;
+    }
+
+    const { title, description } = data;
+
+    const updated = this.categoryRepo.merge(category, {
+      title,
+      description,
+      img: newImg,
+      lsUpBy
+    });
+
     return this.categoryRepo.save(updated);
   }
+
 
   async deleteCategory(id: number): Promise<CategoryEntity> {
     const category = await this.categoryRepo.findOneBy({ id });
@@ -44,62 +83,85 @@ export class CategoryService {
     limit: number,
     localeCode: string,
   ): Promise<Pagination<any>> {
-    const queryBuilder = this.categoryRepo
-      .createQueryBuilder('category')
-      .select([
-        'category.id',
-        `category.title ->> :localeCode AS title`,
-        `category.description ->> :localeCode AS description`,
-      ])
-      .setParameters({ localeCode });
+if (!localeCode) {
+  const queryBuilder = this.categoryRepo.createQueryBuilder('category')
+    .orderBy('category.id', 'ASC')
+    .select(['category.id', 'category.title', 'category.description']);
+  return paginate<CategoryEntity>(queryBuilder, { page, limit, route: 'category' });
+}
 
-    const [rawData, count] = await Promise.all([
-      queryBuilder
-        .offset((page - 1) * limit)
-        .limit(limit)
-        .getRawMany(),
+    else {
+      const queryBuilder = this.categoryRepo
+        .createQueryBuilder('category')
+        .select([
+          'category.id AS id',
+          `category.title ->> :localeCode AS title`,
+          `category.description ->> :localeCode AS description`,
+        ])
+        .setParameters({ localeCode });
 
-      this.categoryRepo.count(),
-    ]);
+      const [rawData, count] = await Promise.all([
+        queryBuilder
+          .offset((page - 1) * limit)
+          .limit(limit)
+          .getRawMany(),
 
-    const items = rawData.map(category => ({
-      id: category.id,
-      title: category.title,
-      description: category.description,
-    }));
+        this.categoryRepo.count(),
+      ]);
 
-    return {
-      items,
-      meta: {
-        totalItems: count,
-        itemCount: items.length,
-        itemsPerPage: limit,
-        totalPages: Math.ceil(count / limit),
-        currentPage: page,
-      },
-    };
+      const items = rawData.map(category => ({
+        id: category.id,
+        title: category.title,
+        description: category.description,
+      }));
+
+      return {
+        items,
+        meta: {
+          totalItems: count,
+          itemCount: items.length,
+          itemsPerPage: limit,
+          totalPages: Math.ceil(count / limit),
+          currentPage: page,
+        },
+      };
+    }
   }
 
   async getOneCategory(id: number, localeCode: string): Promise<any> {
-    const category = await this.categoryRepo
-      .createQueryBuilder('category')
-      .select([
-        'category.id',
-        `category.title ->> :localeCode AS title`,
-        `category.description ->> :localeCode AS description`,
-      ])
-      .where('category.id = :id', { id })
-      .setParameters({ localeCode })
-      .getRawOne();
-
-    if (!category) {
-      throw new NotFoundException('Category not found');
+    if (!localeCode) {
+      const category = await this.categoryRepo.findOne({ where: { id } });
+      if (!category) {
+        throw new NotFoundException('Category not found');
+      }
+      return {
+        id: category.id,
+        title: category.title,
+        description: category.description
+      };
     }
+    else {
 
-    return {
-      id: category.id,
-      title: category.title,
-      description: category.description,
-    };
+      const category = await this.categoryRepo
+        .createQueryBuilder('category')
+        .select([
+          'category.id AS id',
+          `category.title ->> :localeCode AS title`,
+          `category.description ->> :localeCode AS description`,
+        ])
+        .where('category.id = :id', { id })
+        .setParameters({ localeCode })
+        .getRawOne();
+
+      if (!category) {
+        throw new NotFoundException('Category not found');
+      }
+
+      return {
+        id: category.id,
+        title: category.title,
+        description: category.description,
+      };
+    }
   }
 }
