@@ -7,4 +7,5 @@ export declare class CredentialService {
     private readonly bcryptService;
     constructor(credintialRepo: Repository<CredentialEntity>, bcryptService: BcryptUtilService);
     createDoctorCredits(data: CreateCredentialDto): Promise<false | CredentialEntity>;
+    saveDoctorCredential(data: CredentialEntity): Promise<void>;
 }

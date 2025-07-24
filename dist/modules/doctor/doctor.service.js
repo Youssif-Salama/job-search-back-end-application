@@ -20,16 +20,35 @@ const credential_service_1 = require("../credential/credential.service");
 const typeorm_2 = require("@nestjs/typeorm");
 const plan_service_1 = require("../plan/plan.service");
 const code_util_1 = require("../../common/utils/code.util");
+const mail_util_1 = require("../../common/utils/mail.util");
+const otp_util_1 = require("../../common/utils/otp.util");
+const jwt_utils_1 = require("../../common/utils/jwt.utils");
+const config_1 = require("@nestjs/config");
+const doctor_verifyUpdateEmail_1 = require("../../common/pages/doctor.verifyUpdateEmail");
+const bcrypt_util_1 = require("../../common/utils/bcrypt.util");
+const category_service_1 = require("../category/category.service");
 let DoctorService = class DoctorService {
     doctorRepo;
     credintialService;
     planService;
     codeService;
-    constructor(doctorRepo, credintialService, planService, codeService) {
+    emailService;
+    otpService;
+    jwtService;
+    config;
+    bcryptService;
+    categoryService;
+    constructor(doctorRepo, credintialService, planService, codeService, emailService, otpService, jwtService, config, bcryptService, categoryService) {
         this.doctorRepo = doctorRepo;
         this.credintialService = credintialService;
         this.planService = planService;
         this.codeService = codeService;
+        this.emailService = emailService;
+        this.otpService = otpService;
+        this.jwtService = jwtService;
+        this.config = config;
+        this.bcryptService = bcryptService;
+        this.categoryService = categoryService;
     }
     async doctorSignup(data) {
         const { email, phone } = data;
@@ -40,7 +59,7 @@ let DoctorService = class DoctorService {
             throw new common_1.ConflictException("Email or phone already in use");
         const doctor = this.doctorRepo.create(data);
         const credential = await this.credintialService.createDoctorCredits({
-            password: data.password,
+            password: await this.bcryptService.bcryptHashingUtil(data.password),
             doctor
         });
         if (!credential)
@@ -49,22 +68,250 @@ let DoctorService = class DoctorService {
         if (!basicPlan)
             throw new common_1.ConflictException("Basic plan not found");
         let code = this.codeService.makeAfliateCode({ id: doctor.id, fullName: doctor.fullName });
+        console.log({ code });
         doctor.code = {
             code,
             count: 0
         };
         doctor.plan = basicPlan;
         doctor.credential = credential;
+        let otp = this.otpService.generateComplexOtp(6);
+        doctor.otp = otp;
         const savedDoctor = await this.doctorRepo.save(doctor);
         if (!savedDoctor)
             throw new common_1.ConflictException("Failed to save doctor");
-        return savedDoctor;
+        this.emailService.sendMail({
+            to: savedDoctor.email,
+            subject: "DRS - Doctor Signup Confirmation",
+            template: "doctor_signup",
+            context: {
+                name: savedDoctor.fullName.fname + " " + savedDoctor.fullName.lname,
+                otp: savedDoctor.otp,
+            }
+        });
+        const token = this.jwtService.generateToken({
+            fullName: savedDoctor.fullName.fname + " " + savedDoctor.fullName.lname, id: savedDoctor.id, isActive: savedDoctor.isActive,
+            isVerified: savedDoctor.isVerified, email: savedDoctor.email
+        });
+        return {
+            fullName: savedDoctor.fullName.fname + " " + savedDoctor.fullName.lname,
+            isActive: savedDoctor.isActive,
+            isVerified: savedDoctor.isVerified,
+            token
+        };
+    }
+    async doctorProfileVerifyAccountEmail(data) {
+        const { email, otp } = data;
+        const doctor = await this.doctorRepo.findOne({ where: { email } });
+        if (!doctor)
+            throw new common_1.NotFoundException("Doctor account not found!!");
+        if (!doctor.otp || doctor.otp != otp)
+            throw new common_1.ConflictException("Something went wrong with otp!!");
+        doctor.isVerified = true;
+        doctor.otp = "";
+        try {
+            await this.doctorRepo.save(doctor);
+            return {
+                fullName: doctor.fullName.fname + " " + doctor.fullName.lname,
+                isActive: doctor.isActive,
+                isVerified: doctor.isVerified,
+            };
+        }
+        catch (error) {
+            throw new common_1.ConflictException("Somthing went wrong on valid your account");
+        }
+    }
+    async doctorLogin(data) {
+        const doctor = await this.doctorRepo.findOne({
+            where: { email: data.email }
+        });
+        if (!doctor)
+            throw new common_1.NotFoundException("Account not found!");
+        if (!doctor.isActive)
+            throw new common_1.ConflictException("Account is not active!");
+        if (!doctor.isVerified)
+            throw new common_1.ConflictException("Account is not verified!");
+        const token = await this.jwtService.generateToken({
+            email: data.email,
+            password: data.password
+        });
+        return { token };
+    }
+    async updateMyDoctorProfileRawData(data, doctorId) {
+        const { email, phone, fullName, address, clinc } = data;
+        const doctor = await this.doctorRepo.findOne({ where: { id: doctorId } });
+        if (!doctor) {
+            throw new common_1.NotFoundException("Doctor not found!");
+        }
+        const existingImgs = doctor.clinc?.imgs || [];
+        let isEmailChanged = false;
+        const updates = {};
+        if (email && email !== doctor.email) {
+            isEmailChanged = true;
+            updates.email = email;
+            updates.isVerified = false;
+            updates.otp = this.otpService.generateComplexOtp(6);
+        }
+        if (phone && phone !== doctor.phone) {
+            updates.phone = phone;
+        }
+        if (fullName && JSON.stringify(fullName) !== JSON.stringify(doctor.fullName)) {
+            updates.fullName = fullName;
+        }
+        if (address && JSON.stringify(address) !== JSON.stringify(doctor.address)) {
+            updates.address = address;
+        }
+        if (clinc && JSON.stringify(clinc) !== JSON.stringify(doctor.clinc)) {
+            updates.clinc = {
+                ...clinc,
+                imgs: existingImgs
+            };
+        }
+        if (Object.keys(updates).length === 0) {
+            return {
+                fullName: `${doctor.fullName.fname} ${doctor.fullName.lname}`,
+                isActive: doctor.isActive,
+                isVerified: doctor.isVerified,
+            };
+        }
+        Object.assign(doctor, updates);
+        const updatedDoctor = await this.doctorRepo.save(doctor);
+        if (!updatedDoctor) {
+            throw new common_1.ConflictException("Failed to update account data");
+        }
+        this.emailService.sendMail({
+            to: updatedDoctor.email,
+            subject: "DRS - Email Update Verification",
+            template: "doctor_update_email",
+            context: {
+                name: updatedDoctor.fullName.fname + " " + updatedDoctor.fullName.lname,
+                otp: updatedDoctor.otp,
+                link: this.config.get('envConfig.be.updateMyEmailRedirectionLink') + "/verify_update_email" + `?token=${this.jwtService.generateToken({ email: updatedDoctor.email, id: updatedDoctor.id })}`
+            }
+        });
+        return {
+            fullName: `${updatedDoctor.fullName.fname} ${updatedDoctor.fullName.lname}`,
+            isActive: updatedDoctor.isActive,
+            isVerified: updatedDoctor.isVerified,
+        };
+    }
+    async verifyUpdatedEmail(data, res) {
+        const doctor = await this.doctorRepo.findOne({ where: { email: data.email } });
+        if (!doctor) {
+            return res.status(404).send('Doctor not found');
+        }
+        else {
+            res.send((0, doctor_verifyUpdateEmail_1.default)(doctor.fullName.fname + " " + doctor.fullName.lname));
+        }
+    }
+    async verifyDoctorEmailAfterUpdateOtp(data) {
+        const doctor = await this.doctorRepo.findOne({ where: { email: data.email, id: data.id } });
+        if (!doctor) {
+            throw new common_1.NotFoundException("Doctor not found");
+        }
+        if (doctor.otp !== data.otp) {
+            throw new common_1.ConflictException("Invalid OTP");
+        }
+        doctor.isVerified = true;
+        doctor.otp = "";
+        const updatedDoctor = await this.doctorRepo.save(doctor);
+        if (!updatedDoctor) {
+            throw new common_1.ConflictException("Failed to update doctor email verification status");
+        }
+        return {
+            fullName: `${updatedDoctor.fullName.fname} ${updatedDoctor.fullName.lname}`,
+            isActive: updatedDoctor.isActive,
+            isVerified: updatedDoctor.isVerified,
+        };
+    }
+    async doctorResetPasswordRequest(data) {
+        const doctor = await this.doctorRepo.findOne({ where: { email: data.email } });
+        if (!doctor)
+            throw new common_1.NotFoundException("Doctor not found");
+        if (!doctor.isActive)
+            throw new common_1.ConflictException("Doctor account is not active");
+        if (!doctor.isVerified)
+            throw new common_1.ConflictException("Doctor account is not verified");
+        doctor.otp = this.otpService.generateComplexOtp(6);
+        const updatedDoctor = await this.doctorRepo.save(doctor);
+        if (!updatedDoctor)
+            throw new common_1.ConflictException("Something went wrong while updating doctor data");
+        this.emailService.sendMail({
+            to: updatedDoctor.email,
+            subject: "DRS - Password Reset Request",
+            template: "doctor_reset_password_request",
+            context: {
+                name: updatedDoctor.fullName.fname + " " + updatedDoctor.fullName.lname,
+                otp: updatedDoctor.otp
+            }
+        });
+        return {
+            fullName: `${updatedDoctor.fullName.fname} ${updatedDoctor.fullName.lname}`,
+            isActive: updatedDoctor.isActive,
+            isVerified: updatedDoctor.isVerified,
+        };
+    }
+    async doctorResetPassword(data) {
+        const doctor = await this.doctorRepo.findOne({ where: { email: data.email }, relations: ['credential'] });
+        if (!doctor)
+            throw new common_1.NotFoundException("Doctor account not found!");
+        if (!doctor.isActive)
+            throw new common_1.ConflictException("Doctor account is not active");
+        if (!doctor.isVerified)
+            throw new common_1.ConflictException("Doctor account is not verified");
+        if (data.otp !== doctor.otp)
+            throw new common_1.ConflictException('Invalid OTP!');
+        if (!doctor.credential)
+            throw new common_1.ConflictException("Doctor credentials not found!");
+        doctor.credential.password = await this.bcryptService.bcryptHashingUtil(data.password);
+        doctor.otp = "";
+        await this.credintialService.saveDoctorCredential(doctor.credential);
+        await this.doctorRepo.save(doctor);
+        return {
+            message: "Password reset successfully",
+            fullName: `${doctor.fullName.fname} ${doctor.fullName.lname}`,
+            isActive: doctor.isActive,
+            isVerified: doctor.isVerified,
+        };
+    }
+    async doctorProfileChooseCategory(data, id) {
+        const category = await this.categoryService.findOneCategoryForDoctor(+data?.categoryId);
+        if (!category)
+            throw new common_1.NotFoundException("Category not found!!");
+        const doctor = await this.doctorRepo.findOne({ where: { id } });
+        if (!doctor)
+            throw new common_1.NotFoundException("Doctor account not found!!");
+        doctor.category = category;
+        try {
+            const savedDoctor = await this.doctorRepo.save(doctor);
+            return savedDoctor;
+        }
+        catch (error) {
+            throw new common_1.ConflictException("Failed to update doctor's category.");
+        }
+    }
+    async doctorProfileUpdatePassword(data, id) {
+        const doctor = await this.doctorRepo.findOne({ where: { id }, relations: ['credential'] });
+        if (!doctor)
+            throw new common_1.NotFoundException("Doctor account not found!!");
+        const { oldPassword, password } = data;
+        const isPassvalid = await this.bcryptService.bcryptCompareUtil(oldPassword, doctor.credential.password);
+        if (!isPassvalid)
+            throw new common_1.ConflictException("Old password not match!!");
+        doctor.credential.password = await this.bcryptService.bcryptHashingUtil(password);
+        try {
+            const savedDoctor = await this.doctorRepo.save(doctor);
+            return savedDoctor;
+        }
+        catch (error) {
+            throw new common_1.ConflictException("Failed to update doctor's password");
+        }
     }
 };
 exports.DoctorService = DoctorService;
 exports.DoctorService = DoctorService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_2.InjectRepository)(doctors_entity_1.DoctorEntity)),
-    __metadata("design:paramtypes", [typeorm_1.Repository, credential_service_1.CredentialService, plan_service_1.PlanService, code_util_1.CodeUtilService])
+    __metadata("design:paramtypes", [typeorm_1.Repository, credential_service_1.CredentialService, plan_service_1.PlanService, code_util_1.CodeUtilService, mail_util_1.MailUtilService, otp_util_1.OtpUtilService, jwt_utils_1.JwtUtilService, config_1.ConfigService, bcrypt_util_1.BcryptUtilService, category_service_1.CategoryService])
 ], DoctorService);
 //# sourceMappingURL=doctor.service.js.map

@@ -10,11 +10,10 @@ import * as path from 'path';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { CategoryModule } from './modules/category/category.module';
-import { DoctorController } from './modules/doctor/doctor.controller';
 import { DoctorModule } from './modules/doctor/doctor.module';
-import { CredentialService } from './modules/credential/credential.service';
 import { CredentialModule } from './modules/credential/credential.module';
 import { FileModule } from './modules/file/file.module';
+import { JwtUtilService } from './common/utils/jwt.utils';
 
 let envPath: string;
 switch (process.env.NODE_ENV) {
@@ -71,7 +70,7 @@ switch (process.env.NODE_ENV) {
     CategoryModule,
     DoctorModule,
     CredentialModule,
-    // FileModule
+    FileModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
-import { StorageUtilService } from 'src/common/utils/storage.util';
-import { addCategoryDto, ImgType, updateCategoryDto } from 'src/shared/dtos/category.dto';
+import { addCategoryDto, updateCategoryDto } from 'src/shared/dtos/category.dto';
 import { CategoryEntity } from 'src/shared/entities/categoris.entity';
+import { DoctorEntity } from 'src/shared/entities/doctors.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -11,60 +11,31 @@ export class CategoryService {
   constructor(
     @InjectRepository(CategoryEntity)
     private readonly categoryRepo: Repository<CategoryEntity>,
-    private readonly storageService: StorageUtilService
   ) { }
 
-  async addCategory(data: addCategoryDto, img: ImgType, lsUpBy: number): Promise<CategoryEntity> {
+  async addCategory(data: addCategoryDto, lsUpBy: number): Promise<CategoryEntity> {
     const { title, description } = data;
-    console.log({
-      title,
-      description,
-      img,
-      lsUpBy
-    })
-    const newCategory = this.categoryRepo.create({ title, description, img, lsUpBy });
-    const result = await this.categoryRepo.save(newCategory);
-    if (!result) {
-      await this.storageService.destroyFiles([img.public_id], 'categories');
-      throw new NotFoundException('Failed to create category');
-    }
-    return result;
+    const newCategory = this.categoryRepo.create({ title, description, lsUpBy });
+    return this.categoryRepo.save(newCategory);
   }
 
   async updateCategory(
     data: updateCategoryDto,
     id: number,
-    file: Express.Multer.File,
     lsUpBy: number
   ): Promise<CategoryEntity> {
     const category = await this.categoryRepo.findOneBy({ id });
-
     if (!category) {
       throw new NotFoundException('Category not found');
     }
-
-    const { img } = category;
-
-    let newImg = img;
-
-    if (file) {
-      const publicIdList = img?.public_id ? [img.public_id] : [];
-      const newImgs = await this.storageService.replaceFiles(publicIdList, 'categories', [file]);
-      newImg = newImgs[0] || img;
-    }
-
     const { title, description } = data;
-
     const updated = this.categoryRepo.merge(category, {
       title,
       description,
-      img: newImg,
       lsUpBy
     });
-
     return this.categoryRepo.save(updated);
   }
-
 
   async deleteCategory(id: number): Promise<CategoryEntity> {
     const category = await this.categoryRepo.findOneBy({ id });
@@ -83,14 +54,12 @@ export class CategoryService {
     limit: number,
     localeCode: string,
   ): Promise<Pagination<any>> {
-if (!localeCode) {
-  const queryBuilder = this.categoryRepo.createQueryBuilder('category')
-    .orderBy('category.id', 'ASC')
-    .select(['category.id', 'category.title', 'category.description']);
-  return paginate<CategoryEntity>(queryBuilder, { page, limit, route: 'category' });
-}
-
-    else {
+    if (!localeCode) {
+      const queryBuilder = this.categoryRepo.createQueryBuilder('category')
+        .orderBy('category.id', 'ASC')
+        .select(['category.id', 'category.title', 'category.description']);
+      return paginate<CategoryEntity>(queryBuilder, { page, limit, route: 'category' });
+    } else {
       const queryBuilder = this.categoryRepo
         .createQueryBuilder('category')
         .select([
@@ -105,7 +74,6 @@ if (!localeCode) {
           .offset((page - 1) * limit)
           .limit(limit)
           .getRawMany(),
-
         this.categoryRepo.count(),
       ]);
 
@@ -139,9 +107,7 @@ if (!localeCode) {
         title: category.title,
         description: category.description
       };
-    }
-    else {
-
+    } else {
       const category = await this.categoryRepo
         .createQueryBuilder('category')
         .select([
@@ -163,5 +129,10 @@ if (!localeCode) {
         description: category.description,
       };
     }
+  }
+
+  async findOneCategoryForDoctor(id: number): Promise<null | CategoryEntity> {
+    const category = await this.categoryRepo.findOne({ where: { id } });
+    return category ?? null;
   }
 }

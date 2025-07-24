@@ -16,6 +16,8 @@ let CredentialEntity = class CredentialEntity {
     id;
     password;
     credits;
+    createdAt;
+    updatedAt;
     doctor;
 };
 exports.CredentialEntity = CredentialEntity;
@@ -31,6 +33,14 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'int', nullable: false, default: 30 }),
     __metadata("design:type", Number)
 ], CredentialEntity.prototype, "credits", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], CredentialEntity.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], CredentialEntity.prototype, "updatedAt", void 0);
 __decorate([
     (0, typeorm_1.OneToOne)(() => doctors_entity_1.DoctorEntity, doctor => doctor.credential),
     __metadata("design:type", doctors_entity_1.DoctorEntity)

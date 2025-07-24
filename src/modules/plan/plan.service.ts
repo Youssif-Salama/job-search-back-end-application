@@ -111,7 +111,7 @@ export class PlanService {
         `plan.price ->> :localeCode AS price`,
       ])
       .where('plan.id = :id', { id })
-      .setParameters({ localeCode }) // مثال: localeCode = 'ar'
+      .setParameters({ localeCode }) 
       .getRawOne();
 
     if (!plan) {

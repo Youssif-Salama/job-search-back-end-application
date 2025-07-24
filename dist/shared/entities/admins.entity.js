@@ -21,6 +21,8 @@ let AdminEntity = class AdminEntity {
     isVerified;
     otp;
     pages;
+    createdAt;
+    updatedAt;
 };
 exports.AdminEntity = AdminEntity;
 __decorate([
@@ -64,6 +66,14 @@ __decorate([
     (0, typeorm_1.Column)({ type: "jsonb", nullable: true }),
     __metadata("design:type", Object)
 ], AdminEntity.prototype, "pages", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], AdminEntity.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], AdminEntity.prototype, "updatedAt", void 0);
 exports.AdminEntity = AdminEntity = __decorate([
     (0, typeorm_1.Entity)(),
     (0, typeorm_1.Check)(`"email" ~* '^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$'`),

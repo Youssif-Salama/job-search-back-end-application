@@ -11,6 +11,7 @@ export declare class StorageUtilService {
     private readonly cloudinaryService;
     private cloudinaryStorageClient;
     constructor(cloudinaryService: CloudinaryBaseUtilService);
+    private sanitizeFilename;
     private makeCloudinaryStream;
     private generatePublicId;
     uploadFile(fileObj: FileObjType, bucket: string): Promise<{

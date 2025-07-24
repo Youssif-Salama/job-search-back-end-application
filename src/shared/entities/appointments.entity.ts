@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { DoctorEntity } from "./doctors.entity";
 import { ReservationEntity } from "./reservations.entity";
 
@@ -25,6 +25,12 @@ export class AppointmentEntity {
     @Column({ type: "boolean", default: false, nullable: true })
     done: boolean;
 
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
     @ManyToOne(() => DoctorEntity, doctor => doctor.appointments)
     doctor: DoctorEntity
 
@@ -34,9 +40,9 @@ export class AppointmentEntity {
 
 
 /*
-* each appointment just available for one week 
+* each appointment just available for one week
    because each week the appointment closed (true => false)
-   and its reservation also closed 
+   and its reservation also closed
 
 * done refers too the patient already camed to th clinc
 *

@@ -1,4 +1,4 @@
-import { Check, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Check, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { AppointmentEntity } from "./appointments.entity";
 import { RateEntity } from "./rates.entity";
 
@@ -22,6 +22,12 @@ export class ReservationEntity {
         code: string;
         used: boolean;
     };
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 
     @OneToOne(() => AppointmentEntity, appoinment => appoinment.reservation)
 

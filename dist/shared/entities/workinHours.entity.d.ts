@@ -11,6 +11,8 @@ export declare class WorkingHoursEntity {
         from: string;
         to: string;
     };
+    createdAt: Date;
+    updatedAt: Date;
     doctor: DoctorEntity;
 }
 export {};

@@ -16,62 +16,144 @@ exports.FileController = void 0;
 const common_1 = require("@nestjs/common");
 const platform_express_1 = require("@nestjs/platform-express");
 const swagger_1 = require("@nestjs/swagger");
-const public_decorator_1 = require("../../common/decorators/public.decorator");
-const storage_util_1 = require("../../common/utils/storage.util");
-const doctor_dto_1 = require("../../shared/dtos/doctor.dto");
+const file_dto_1 = require("../../shared/dtos/file.dto");
+const file_service_1 = require("./file.service");
 let FileController = class FileController {
-    storageService;
-    constructor(storageService) {
-        this.storageService = storageService;
+    fileService;
+    constructor(fileService) {
+        this.fileService = fileService;
     }
-    async doctorFiles(files) {
-        const bucket = 'doctors';
-        const uploadOneFile = async (file) => {
-            if (!file)
-                return null;
+    async uploadMyDoctorProfileAuthFiles(req, files) {
+        const { id } = req['user'];
+        return this.fileService.createDoctorAuthFiles(+id, files);
+    }
+    async uploadMyDoctorProfileImg(req, file) {
+        const doctorId = req['user']?.id;
+        return this.fileService.updateDoctorProfileImg(+doctorId, file);
+    }
+    async uploadMyDoctorProfileClinicFiles(req, files) {
+        let keepFiles = [];
+        if (req.body.keepFiles) {
             try {
-                return await this.storageService.uploadFile(file, bucket);
+                keepFiles = typeof req.body.keepFiles === 'string'
+                    ? JSON.parse(req.body.keepFiles)
+                    : req.body.keepFiles;
             }
-            catch (error) {
-                throw new common_1.ConflictException(`File upload failed: ${file.originalname}`);
+            catch {
+                throw new common_1.BadRequestException("keepFiles must be a valid JSON array");
             }
-        };
-        const [cardResult, fidResult, sidResult] = await Promise.all([
-            uploadOneFile(files.card?.[0]),
-            uploadOneFile(files.fid?.[0]),
-            uploadOneFile(files.sid?.[0])
-        ]);
-        return {
-            message: 'Files uploaded successfully',
-            results: {
-                card: cardResult,
-                fid: fidResult,
-                sid: sidResult,
-            },
-        };
+        }
+        const doctorId = req['user']?.id;
+        return this.fileService.updateDoctorClincFiles(+doctorId, files, keepFiles);
+    }
+    async updateMyDoctorProfileAuthFiles(files, req) {
+        const doctorId = req['user']?.id;
+        return this.fileService.updateDoctorAuthFiles(+doctorId, files);
     }
 };
 exports.FileController = FileController;
 __decorate([
-    (0, common_1.Post)('/doctor'),
-    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)('doctor/auth'),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileFieldsInterceptor)([
-        { name: 'card', maxCount: 1 },
-        { name: 'fid', maxCount: 1 },
-        { name: 'sid', maxCount: 1 },
+        { name: "card", maxCount: 1 },
+        { name: "fid", maxCount: 1 },
+        { name: "sid", maxCount: 1 }
     ])),
-    (0, swagger_1.ApiConsumes)('multipart/form-data'),
+    (0, swagger_1.ApiConsumes)("multipart/form-data"),
     (0, swagger_1.ApiBody)({
-        description: 'Upload doctor files (card, fid, sid)',
-        type: doctor_dto_1.DoctorFilesDto,
+        description: "doctor profile auth files, بعد م الدكتور يسجل بياناته لاول مره",
+        type: file_dto_1.DoctorProfileAuthFiles
+    }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.UploadedFiles)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], FileController.prototype, "uploadMyDoctorProfileAuthFiles", null);
+__decorate([
+    (0, common_1.Patch)("doctor/img"),
+    (0, common_1.HttpCode)(200),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('img')),
+    (0, swagger_1.ApiConsumes)("multipart/form-data"),
+    (0, swagger_1.ApiBody)({
+        description: "doctor profile image, اضافه او تعديل الصوره الشخصيه للدكتور",
+        type: file_dto_1.DoctorProfileImgDto
+    }),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], FileController.prototype, "uploadMyDoctorProfileImg", null);
+__decorate([
+    (0, common_1.Patch)("doctor/clinic"),
+    (0, common_1.HttpCode)(200),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('files', 10)),
+    (0, swagger_1.ApiConsumes)("multipart/form-data"),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
+    (0, swagger_1.ApiBody)({
+        description: "doctor profile clinic files, اضافه ملفات العياده او التعديل عليها",
+        schema: {
+            type: "object",
+            properties: {
+                files: {
+                    type: "array",
+                    items: {
+                        type: "string",
+                        format: "binary"
+                    },
+                    description: "Up to 10 files"
+                },
+                keepFiles: {
+                    type: "array",
+                    items: {
+                        type: "object",
+                        properties: {
+                            public_id: {
+                                type: "string",
+                                description: "Public ID of the old file to keep"
+                            },
+                            url: {
+                                type: "string",
+                                description: "URL of the old file to keep"
+                            }
+                        }
+                    },
+                    nullable: true,
+                    description: "List of old files to keep (can be empty or omitted)"
+                }
+            }
+        }
+    }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.UploadedFiles)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Array]),
+    __metadata("design:returntype", Promise)
+], FileController.prototype, "uploadMyDoctorProfileClinicFiles", null);
+__decorate([
+    (0, common_1.Patch)('doctor/auth'),
+    (0, common_1.HttpCode)(200),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileFieldsInterceptor)([
+        { name: "card", maxCount: 1 },
+        { name: "fid", maxCount: 1 },
+        { name: "sid", maxCount: 1 }
+    ])),
+    (0, swagger_1.ApiConsumes)("multipart/form-data"),
+    (0, swagger_1.ApiBody)({
+        description: "doctor profile auth تعديل الملفات ",
+        type: file_dto_1.DoctorProfileAuthUpdateFiles
     }),
     __param(0, (0, common_1.UploadedFiles)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
-], FileController.prototype, "doctorFiles", null);
+], FileController.prototype, "updateMyDoctorProfileAuthFiles", null);
 exports.FileController = FileController = __decorate([
     (0, common_1.Controller)('file'),
-    __metadata("design:paramtypes", [storage_util_1.StorageUtilService])
+    __metadata("design:paramtypes", [file_service_1.FileService])
 ], FileController);
 //# sourceMappingURL=file.controller.js.map

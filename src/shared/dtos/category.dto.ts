@@ -1,80 +1,51 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MinLength, ValidateNested } from 'class-validator';
+import { IsString, MinLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Binary } from 'typeorm';
 
 class MultiLangString {
     @ApiProperty({ example: 'category' })
     @IsString()
-    @IsNotEmpty()
+    @MinLength(3)
     en: string;
 
-    @ApiProperty({ example: 'فئة' })
+    @ApiProperty({ example: 'تصنيف' })
     @IsString()
-    @IsNotEmpty()
+    @MinLength(3)
     ar: string;
 }
 
 class MultiLangText {
     @ApiProperty({ example: 'category description' })
     @IsString()
-    @IsNotEmpty()
+    @MinLength(10)
     en: string;
 
-    @ApiProperty({ example: 'وصف الفئة' })
+    @ApiProperty({ example: 'وصف التصنيف' })
     @IsString()
-    @IsNotEmpty()
+    @MinLength(10)
     ar: string;
 }
 
-
-
-
-
-export class CategoryDto {
+export class addCategoryDto {
     @ApiProperty({ type: MultiLangString })
     @ValidateNested()
     @Type(() => MultiLangString)
-    @IsNotEmpty()
     title: MultiLangString;
 
     @ApiProperty({ type: MultiLangText })
     @ValidateNested()
     @Type(() => MultiLangText)
-    @IsNotEmpty()
     description: MultiLangText;
-
-
 }
 
-export class ImgDto {
-    @ApiProperty({ name: 'img', description: 'category img', type: 'string', format: 'binary' })
-    img: Binary;
-}
+export class updateCategoryDto {
+    @ApiProperty({ type: MultiLangString })
+    @ValidateNested()
+    @Type(() => MultiLangString)
+    title: MultiLangString;
 
-
-export class ImgType {
-    url: string;
-    public_id: string
-}
-
-
-export class addCategoryDto extends CategoryDto {
-    @ApiProperty({ name: 'img', description: 'category img', type: 'string', format: 'binary' })
-    img: Binary
-}
-
-export class updateCategoryDto extends CategoryDto {
-    @ApiProperty({ name: 'img', description: 'category img', type: 'string', format: 'binary' })
-    img: Binary
-}
-
-export class CategoryFormDataDto {
-    @IsNotEmpty()
-    @IsString()
-    title: string;
-
-    @IsNotEmpty()
-    @IsString()
-    description: string;
+    @ApiProperty({ type: MultiLangText })
+    @ValidateNested()
+    @Type(() => MultiLangText)
+    description: MultiLangText;
 }

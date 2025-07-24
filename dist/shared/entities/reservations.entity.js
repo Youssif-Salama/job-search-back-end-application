@@ -19,6 +19,8 @@ let ReservationEntity = class ReservationEntity {
     phone;
     description;
     code;
+    createdAt;
+    updatedAt;
     appointment;
     rate;
 };
@@ -43,6 +45,14 @@ __decorate([
     (0, typeorm_1.Column)({ type: "jsonb", nullable: true }),
     __metadata("design:type", Object)
 ], ReservationEntity.prototype, "code", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], ReservationEntity.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], ReservationEntity.prototype, "updatedAt", void 0);
 __decorate([
     (0, typeorm_1.OneToOne)(() => appointments_entity_1.AppointmentEntity, appoinment => appoinment.reservation),
     (0, typeorm_1.JoinColumn)({ name: 'appointmentId' }),

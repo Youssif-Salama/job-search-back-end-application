@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { DoctorEntity } from './doctors.entity';
 import { RequestEntity } from './requests.entity';
 
@@ -27,6 +27,12 @@ export class PlanEntity {
 
   @Column({ type: 'int', nullable: false })
   lsUpBy: number;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @OneToMany(() => DoctorEntity, doctor => doctor.plan)
   doctors: DoctorEntity[];

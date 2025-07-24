@@ -16,6 +16,8 @@ let RateEntity = class RateEntity {
     id;
     comment;
     rate;
+    createdAt;
+    updatedAt;
     reservation;
 };
 exports.RateEntity = RateEntity;
@@ -31,6 +33,14 @@ __decorate([
     (0, typeorm_1.Column)({ type: "int", nullable: false }),
     __metadata("design:type", Number)
 ], RateEntity.prototype, "rate", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], RateEntity.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], RateEntity.prototype, "updatedAt", void 0);
 __decorate([
     (0, typeorm_1.OneToOne)(() => reservations_entity_1.ReservationEntity, reservation => reservation.rate),
     (0, typeorm_1.JoinColumn)({ name: 'reservationId' }),

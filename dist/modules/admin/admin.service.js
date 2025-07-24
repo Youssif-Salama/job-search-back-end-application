@@ -40,7 +40,7 @@ let AdminService = class AdminService {
     }
     async createAdmin(data) {
         const { name, password, email } = data;
-        const hashedPassword = this.bcryptService.bcryptHashingUtil(password);
+        const hashedPassword = await this.bcryptService.bcryptHashingUtil(password);
         const newAdmin = this.adminRepo.create({ name, password: hashedPassword, email });
         if (!newAdmin)
             throw new common_1.ConflictException("Something went wrong");
@@ -108,7 +108,7 @@ let AdminService = class AdminService {
         if (admin.otp !== otp)
             throw new common_1.ConflictException("Something went wrong");
         console.log({ admin, password });
-        const isPasswordValid = this.bcryptService.bcryptCompareUtil(password, admin.password);
+        const isPasswordValid = await this.bcryptService.bcryptCompareUtil(password, admin.password);
         if (!isPasswordValid)
             throw new common_1.ConflictException("Something went wrong");
         const { name, id } = admin;
@@ -142,7 +142,7 @@ let AdminService = class AdminService {
             throw new common_1.NotFoundException("Something went wrong");
         if (admin.otp !== data.otp)
             throw new common_1.ConflictException("Something went wrong");
-        const hashedPassword = this.bcryptService.bcryptHashingUtil(data.password);
+        const hashedPassword = await this.bcryptService.bcryptHashingUtil(data.password);
         admin.password = hashedPassword;
         admin.otp = "";
         await this.adminRepo.save(admin);
@@ -161,7 +161,7 @@ let AdminService = class AdminService {
             admin.email = email;
             const otp = this.otpService.generateComplexOtp(6);
             admin.otp = otp;
-            const hashedOtp = this.bcryptService.bcryptHashingUtil(otp);
+            const hashedOtp = await this.bcryptService.bcryptHashingUtil(otp);
             const token = this.jwtService.generateToken({ otp: hashedOtp, email }, "1h");
             await this.mailService.sendMail({
                 to: email,
@@ -175,9 +175,9 @@ let AdminService = class AdminService {
             admin.isVerified = false;
         }
         if (password) {
-            const isSamePassword = this.bcryptService.bcryptCompareUtil(password, admin.password);
+            const isSamePassword = await this.bcryptService.bcryptCompareUtil(password, admin.password);
             if (!isSamePassword) {
-                admin.password = await this.bcryptService.bcryptHashingUtil(password);
+                admin.password = await await this.bcryptService.bcryptHashingUtil(password);
             }
         }
         const savedAdmin = await this.adminRepo.save(admin);
@@ -191,7 +191,7 @@ let AdminService = class AdminService {
         const admin = await this.adminRepo.findOne({ where: { email } });
         if (!admin)
             throw new common_1.NotFoundException("Something went wrong");
-        const isOtpCorrect = this.bcryptService.bcryptCompareUtil(admin.otp, otp);
+        const isOtpCorrect = await this.bcryptService.bcryptCompareUtil(admin.otp, otp);
         if (!isOtpCorrect)
             throw new common_1.ConflictException("Something went wrong");
         admin.isVerified = true;

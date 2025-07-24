@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DoctorFilesDto = exports.AddDoctorDto = void 0;
+exports.doctorProfleVerifeAccountEmailDto = exports.updatePasswordDto = exports.doctorProfileChooseCategoryDto = exports.doctorProfileResetPasswordDoDto = exports.doctorProfileResetPasswordDto = exports.DoctorUpdateRawDataDto = exports.LoginDoctorDto = exports.DoctorFilesDto = exports.AddDoctorDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const swagger_1 = require("@nestjs/swagger");
@@ -132,7 +132,6 @@ class AddDoctorDto {
     phone;
     fullName;
     address;
-    clinc;
     password;
 }
 exports.AddDoctorDto = AddDoctorDto;
@@ -144,6 +143,7 @@ __decorate([
         type: String,
     }),
     (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], AddDoctorDto.prototype, "email", void 0);
 __decorate([
@@ -177,16 +177,6 @@ __decorate([
     (0, class_transformer_1.Type)(() => AddressDto),
     __metadata("design:type", AddressDto)
 ], AddDoctorDto.prototype, "address", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({
-        description: 'Clinic information including name, description, and address',
-        required: true,
-        type: () => ClincDto,
-    }),
-    (0, class_validator_1.ValidateNested)(),
-    (0, class_transformer_1.Type)(() => ClincDto),
-    __metadata("design:type", ClincDto)
-], AddDoctorDto.prototype, "clinc", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Doctor password (must be strong)',
@@ -237,4 +227,223 @@ __decorate([
     }),
     __metadata("design:type", typeorm_1.Binary)
 ], DoctorFilesDto.prototype, "sid", void 0);
+class LoginDoctorDto {
+    email;
+    password;
+}
+exports.LoginDoctorDto = LoginDoctorDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: 'email',
+        description: 'Email of the doctor',
+        example: 'doctor@gmail.com',
+        required: true,
+        type: String
+    }),
+    (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], LoginDoctorDto.prototype, "email", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: 'password',
+        description: 'Password of the doctor',
+        example: 'StrongP@ssword1',
+        required: true,
+        type: String
+    }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], LoginDoctorDto.prototype, "password", void 0);
+class DoctorUpdateRawDataDto {
+    email;
+    phone;
+    fullName;
+    address;
+    clinc;
+}
+exports.DoctorUpdateRawDataDto = DoctorUpdateRawDataDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Doctor email address',
+        example: 'doctor@example.com',
+        required: true,
+        type: String,
+    }),
+    (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], DoctorUpdateRawDataDto.prototype, "email", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Doctor phone number',
+        example: '01012345678',
+        required: true,
+        type: String,
+    }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], DoctorUpdateRawDataDto.prototype, "phone", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Doctor full name (first and last)',
+        required: true,
+        type: () => FullNameDto,
+    }),
+    (0, class_validator_1.ValidateNested)(),
+    (0, class_transformer_1.Type)(() => FullNameDto),
+    __metadata("design:type", FullNameDto)
+], DoctorUpdateRawDataDto.prototype, "fullName", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Doctor address including governorate and center',
+        required: true,
+        type: () => AddressDto,
+    }),
+    (0, class_validator_1.ValidateNested)(),
+    (0, class_transformer_1.Type)(() => AddressDto),
+    __metadata("design:type", AddressDto)
+], DoctorUpdateRawDataDto.prototype, "address", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Doctor clinic information',
+        required: true,
+        type: () => ClincDto,
+    }),
+    (0, class_validator_1.ValidateNested)(),
+    (0, class_transformer_1.Type)(() => ClincDto),
+    __metadata("design:type", ClincDto)
+], DoctorUpdateRawDataDto.prototype, "clinc", void 0);
+class doctorProfileResetPasswordDto {
+    email;
+}
+exports.doctorProfileResetPasswordDto = doctorProfileResetPasswordDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Doctor email address',
+        example: 'doctor@example.com',
+        required: true,
+        type: String,
+    }),
+    (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], doctorProfileResetPasswordDto.prototype, "email", void 0);
+class doctorProfileResetPasswordDoDto {
+    email;
+    otp;
+    password;
+}
+exports.doctorProfileResetPasswordDoDto = doctorProfileResetPasswordDoDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Doctor email address',
+        example: 'doctor@example.com',
+        required: true,
+        type: String,
+    }),
+    (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], doctorProfileResetPasswordDoDto.prototype, "email", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: 'otp',
+        description: 'OTP code for password reset',
+        example: '123456',
+        required: true,
+        type: String
+    }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], doctorProfileResetPasswordDoDto.prototype, "otp", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Doctor password (must be strong)',
+        example: 'StrongP@ssword1',
+        required: true,
+        type: String,
+    }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MinLength)(8),
+    (0, class_validator_1.Matches)(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+        message: 'password too weak',
+    }),
+    __metadata("design:type", String)
+], doctorProfileResetPasswordDoDto.prototype, "password", void 0);
+class doctorProfileChooseCategoryDto {
+    categoryId;
+}
+exports.doctorProfileChooseCategoryDto = doctorProfileChooseCategoryDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: 'category id',
+        description: 'choosed category id go here',
+        type: 'number',
+        required: true
+    }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], doctorProfileChooseCategoryDto.prototype, "categoryId", void 0);
+class updatePasswordDto {
+    oldPassword;
+    password;
+}
+exports.updatePasswordDto = updatePasswordDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: "old password",
+        description: "old passwor dgo here",
+        type: "string",
+        required: true
+    }),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], updatePasswordDto.prototype, "oldPassword", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Doctor password (must be strong)',
+        example: 'StrongP@ssword1',
+        required: true,
+        type: String,
+    }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MinLength)(8),
+    (0, class_validator_1.Matches)(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+        message: 'password too weak',
+    }),
+    __metadata("design:type", String)
+], updatePasswordDto.prototype, "password", void 0);
+class doctorProfleVerifeAccountEmailDto {
+    email;
+    otp;
+}
+exports.doctorProfleVerifeAccountEmailDto = doctorProfleVerifeAccountEmailDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Doctor email address',
+        example: 'doctor@example.com',
+        required: true,
+        type: String,
+    }),
+    (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], doctorProfleVerifeAccountEmailDto.prototype, "email", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: 'otp',
+        description: 'otp go here',
+        required: true,
+        type: String
+    }),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], doctorProfleVerifeAccountEmailDto.prototype, "otp", void 0);
 //# sourceMappingURL=doctor.dto.js.map

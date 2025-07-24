@@ -18,6 +18,8 @@ let RequestEntity = class RequestEntity {
     done;
     type;
     lsUpBy;
+    createdAt;
+    updatedAt;
     plan;
     doctor;
 };
@@ -38,6 +40,14 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'int', nullable: false }),
     __metadata("design:type", Number)
 ], RequestEntity.prototype, "lsUpBy", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], RequestEntity.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], RequestEntity.prototype, "updatedAt", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => plans_entity_1.PlanEntity, plan => plan.requests),
     (0, typeorm_1.JoinColumn)({ name: 'planId' }),

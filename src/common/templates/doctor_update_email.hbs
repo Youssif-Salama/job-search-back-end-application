@@ -1,0 +1,39 @@
+<body dir="rtl"
+    style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; direction: rtl; text-align: right;">
+    <div
+        style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <h1 style="color: #333;">مرحباً {{name}}!</h1>
+
+        <p>لقد قمت باعاده تعين البريد الالكتروني</p>
+
+        <p>رمز التحقق الخاص بك هو:</p>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="otp"
+                style="font-size: 24px; font-weight: bold; color: #fff; background-color: #2d89ef; padding: 10px 15px; border-radius: 4px;">
+                {{otp}}
+            </span>
+            <button onclick="copyOtp()" style="background: none; border: none; cursor: pointer; font-size: 20px;"
+                title="نسخ الرمز">
+                📋
+            </button>
+        </div>
+
+        <p style="margin-top: 30px; color: #777;">يرجى نسخ الرمز أعلاه واستخدامه لتأكيد حسابك.</p>
+        <a href={{link}}>اضغط هنا لاعاده توثيق بريدك الالكتروني</a>
+
+
+        <p style="margin-top: 30px; color: #777;">إذا لم تقم بطلب هذا البريد، يرجى تجاهله.</p>
+    </div>
+
+    <script>
+        function copyOtp() {
+            const otpText = document.getElementById("otp").innerText;
+            navigator.clipboard.writeText(otpText).then(() => {
+                alert("تم نسخ رمز التحقق!");
+            }).catch(err => {
+                alert("حدث خطأ أثناء النسخ.");
+            });
+        }
+    </script>
+</body>

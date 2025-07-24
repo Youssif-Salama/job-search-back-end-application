@@ -8,16 +8,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FileModule = void 0;
 const common_1 = require("@nestjs/common");
-const file_service_1 = require("./file.service");
 const file_controller_1 = require("./file.controller");
 const storage_util_1 = require("../../common/utils/storage.util");
 const cloudinary_util_1 = require("../../common/utils/cloudinary.util");
+const typeorm_1 = require("@nestjs/typeorm");
+const doctors_entity_1 = require("../../shared/entities/doctors.entity");
+const file_service_1 = require("./file.service");
 let FileModule = class FileModule {
 };
 exports.FileModule = FileModule;
 exports.FileModule = FileModule = __decorate([
     (0, common_1.Module)({
-        providers: [file_service_1.FileService, storage_util_1.StorageUtilService, cloudinary_util_1.CloudinaryBaseUtilService],
+        imports: [typeorm_1.TypeOrmModule.forFeature([doctors_entity_1.DoctorEntity])],
+        providers: [storage_util_1.StorageUtilService, cloudinary_util_1.CloudinaryBaseUtilService, file_service_1.FileService],
         controllers: [file_controller_1.FileController]
     })
 ], FileModule);

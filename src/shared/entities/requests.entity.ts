@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { DoctorEntity } from "./doctors.entity";
 import { PlanEntity } from "./plans.entity";
 
@@ -19,6 +19,12 @@ export class RequestEntity {
 
     @Column({ type: 'int', nullable: false })
     lsUpBy: number;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 
     @ManyToOne(() => PlanEntity, plan => plan.requests)
     @JoinColumn({ name: 'planId' })

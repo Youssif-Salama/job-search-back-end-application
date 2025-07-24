@@ -15,6 +15,8 @@ export declare class PlanEntity {
         ar: number;
     };
     lsUpBy: number;
+    createdAt: Date;
+    updatedAt: Date;
     doctors: DoctorEntity[];
     requests: RequestEntity[];
 }

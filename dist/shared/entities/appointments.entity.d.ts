@@ -10,6 +10,8 @@ export declare class AppointmentEntity {
     description: string;
     closed: boolean;
     done: boolean;
+    createdAt: Date;
+    updatedAt: Date;
     doctor: DoctorEntity;
     reservation: ReservationEntity;
 }

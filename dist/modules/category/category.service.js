@@ -16,49 +16,27 @@ exports.CategoryService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const nestjs_typeorm_paginate_1 = require("nestjs-typeorm-paginate");
-const storage_util_1 = require("../../common/utils/storage.util");
 const categoris_entity_1 = require("../../shared/entities/categoris.entity");
 const typeorm_2 = require("typeorm");
 let CategoryService = class CategoryService {
     categoryRepo;
-    storageService;
-    constructor(categoryRepo, storageService) {
+    constructor(categoryRepo) {
         this.categoryRepo = categoryRepo;
-        this.storageService = storageService;
     }
-    async addCategory(data, img, lsUpBy) {
+    async addCategory(data, lsUpBy) {
         const { title, description } = data;
-        console.log({
-            title,
-            description,
-            img,
-            lsUpBy
-        });
-        const newCategory = this.categoryRepo.create({ title, description, img, lsUpBy });
-        const result = await this.categoryRepo.save(newCategory);
-        if (!result) {
-            await this.storageService.destroyFiles([img.public_id], 'categories');
-            throw new common_1.NotFoundException('Failed to create category');
-        }
-        return result;
+        const newCategory = this.categoryRepo.create({ title, description, lsUpBy });
+        return this.categoryRepo.save(newCategory);
     }
-    async updateCategory(data, id, file, lsUpBy) {
+    async updateCategory(data, id, lsUpBy) {
         const category = await this.categoryRepo.findOneBy({ id });
         if (!category) {
             throw new common_1.NotFoundException('Category not found');
-        }
-        const { img } = category;
-        let newImg = img;
-        if (file) {
-            const publicIdList = img?.public_id ? [img.public_id] : [];
-            const newImgs = await this.storageService.replaceFiles(publicIdList, 'categories', [file]);
-            newImg = newImgs[0] || img;
         }
         const { title, description } = data;
         const updated = this.categoryRepo.merge(category, {
             title,
             description,
-            img: newImg,
             lsUpBy
         });
         return this.categoryRepo.save(updated);
@@ -146,12 +124,15 @@ let CategoryService = class CategoryService {
             };
         }
     }
+    async findOneCategoryForDoctor(id) {
+        const category = await this.categoryRepo.findOne({ where: { id } });
+        return category ?? null;
+    }
 };
 exports.CategoryService = CategoryService;
 exports.CategoryService = CategoryService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(categoris_entity_1.CategoryEntity)),
-    __metadata("design:paramtypes", [typeorm_2.Repository,
-        storage_util_1.StorageUtilService])
+    __metadata("design:paramtypes", [typeorm_2.Repository])
 ], CategoryService);
 //# sourceMappingURL=category.service.js.map

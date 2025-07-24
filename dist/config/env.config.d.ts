@@ -31,6 +31,12 @@ declare const _default: (() => {
         key: string | undefined;
         secret: string | undefined;
     };
+    fe: {
+        url: string;
+    };
+    be: {
+        url: string;
+    };
 }) & import("@nestjs/config").ConfigFactoryKeyHost<{
     system: {
         node_env: string | undefined;
@@ -63,6 +69,12 @@ declare const _default: (() => {
         name: string | undefined;
         key: string | undefined;
         secret: string | undefined;
+    };
+    fe: {
+        url: string;
+    };
+    be: {
+        url: string;
     };
 }>;
 export default _default;

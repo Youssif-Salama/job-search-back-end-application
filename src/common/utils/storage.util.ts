@@ -24,6 +24,15 @@ export class StorageUtilService {
         this.cloudinaryStorageClient = this.cloudinaryService.getCloudinaryClient();
     }
 
+    private sanitizeFilename(name: string): string {
+        return name
+            .toLowerCase()
+            .replace(/\s+/g, '-')
+            .replace(/[^a-z0-9\-\.]/g, '')
+            .substring(0, 50);
+    }
+
+
     private makeCloudinaryStream(bucket: string, public_id: string, resource_type: string) {
         return {
             streamUploader: (buffer: Buffer): Promise<CloudinaryUploadResult> => {
@@ -49,14 +58,22 @@ export class StorageUtilService {
             .map(() => "abcdefghijklmnopqrstuvwxyz1234567890".charAt(Math.floor(Math.random() * 36)))
             .join("");
 
-        return `${bucket}-${fieldname}-${originalname}-drs-${randomWord}-drs-${new Date().getFullYear()}/${new Date().getMonth() + 1}`;
+        const safeName = this.sanitizeFilename(originalname);
+
+        return `${bucket}-${fieldname}-${safeName}-drs-${randomWord}-drs-${new Date().getFullYear()}/${new Date().getMonth() + 1}`;
     }
 
+
     async uploadFile(fileObj: FileObjType, bucket: string) {
+        const mimetype = fileObj.mimetype.split("/")[0];
         const { fieldname, originalname, buffer } = fileObj;
         const generatedPublicId = this.generatePublicId(bucket, originalname, fieldname);
-        const uploader = this.makeCloudinaryStream(bucket, generatedPublicId, 'image');
+        const uploader = this.makeCloudinaryStream(bucket, generatedPublicId, mimetype);
         const uploadFileResult = await uploader.streamUploader(buffer);
+        console.log({
+            url: uploadFileResult.secure_url,
+            public_id: uploadFileResult.public_id,
+        });
 
         return {
             url: uploadFileResult.secure_url,
@@ -66,7 +83,19 @@ export class StorageUtilService {
 
     async uploadFiles(filesObjs: FileObjType[], bucket: string) {
         const uploads = filesObjs.map(fileObj => this.uploadFile(fileObj, bucket));
-        return await Promise.all(uploads);
+        const uploadedFiles = await Promise.all(uploads);
+        if (uploadedFiles.length === 0) {
+            throw new Error("No files to upload");
+        }
+        if (uploadedFiles.length < filesObjs.length) {
+            // delete the files that were uploaded 
+            const successUploadedFilesPublicIdsList = uploadedFiles.filter(upload => upload && upload.public_id);
+            if (successUploadedFilesPublicIdsList.length > 0) {
+                await this.destroyFiles(successUploadedFilesPublicIdsList.map(file => file.public_id), bucket);
+            }
+            throw new Error("Some files failed to upload");
+        }
+        return uploadedFiles;
     }
 
     async destroyFiles(publicIdList: string[], bucket: string) {
@@ -76,9 +105,7 @@ export class StorageUtilService {
 
         const results = await Promise.allSettled(
             publicIdList.map(publicId =>
-                this.cloudinaryStorageClient.uploader.destroy(publicId, {
-                    resource_type: 'image',
-                })
+                this.cloudinaryStorageClient.uploader.destroy(publicId)
             )
         );
 
@@ -90,7 +117,7 @@ export class StorageUtilService {
     }
 
     async replaceFiles(publicIdList: string[], bucket: string, files: FileObjType[]) {
-        await this.destroyFiles(publicIdList, bucket);
+        (publicIdList && publicIdList?.length > 0) && await this.destroyFiles(publicIdList, bucket);
         return await this.uploadFiles(files, bucket);
     }
 }

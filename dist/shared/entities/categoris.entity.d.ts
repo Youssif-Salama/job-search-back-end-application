@@ -1,3 +1,4 @@
+import { DoctorEntity } from './doctors.entity';
 export declare class CategoryEntity {
     id: number;
     title: {
@@ -8,9 +9,8 @@ export declare class CategoryEntity {
         en: string;
         ar: string;
     };
-    img: {
-        url: string;
-        public_id: string;
-    };
     lsUpBy: number;
+    createdAt: Date;
+    updatedAt: Date;
+    doctors: DoctorEntity[];
 }

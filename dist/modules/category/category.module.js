@@ -34,7 +34,7 @@ exports.CategoryModule = CategoryModule = __decorate([
                 useClass: auth_guard_1.AuthGuard,
             },
         ],
-        exports: [],
+        exports: [category_service_1.CategoryService, typeorm_1.TypeOrmModule],
     })
 ], CategoryModule);
 //# sourceMappingURL=category.module.js.map

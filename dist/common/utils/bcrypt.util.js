@@ -18,12 +18,12 @@ let BcryptUtilService = class BcryptUtilService {
     constructor(envConfig) {
         this.envConfig = envConfig;
     }
-    bcryptHashingUtil(password) {
+    async bcryptHashingUtil(password) {
         const saltRounds = this.envConfig.get('envConfig.bcrypt.salting') ?? 10;
-        return bcrypt.hashSync(password, +saltRounds);
+        return await bcrypt.hash(password, +saltRounds);
     }
-    bcryptCompareUtil(password, hash) {
-        return bcrypt.compareSync(password, hash);
+    async bcryptCompareUtil(password, hashedPassword) {
+        return await bcrypt.compare(password, hashedPassword);
     }
 };
 exports.BcryptUtilService = BcryptUtilService;

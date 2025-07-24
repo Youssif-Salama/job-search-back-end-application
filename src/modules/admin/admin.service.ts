@@ -28,7 +28,7 @@ export class AdminService {
   async createAdmin(data: CreateAdminDto): Promise<SignupResponseDto> {
     const { name, password, email } = data;
 
-    const hashedPassword = this.bcryptService.bcryptHashingUtil(password);
+    const hashedPassword = await this.bcryptService.bcryptHashingUtil(password);
 
     const newAdmin = this.adminRepo.create({ name, password: hashedPassword, email });
 
@@ -100,7 +100,7 @@ export class AdminService {
     if (!admin) throw new NotFoundException("Something went wrong");
     if (admin.otp !== otp) throw new ConflictException("Something went wrong");
     console.log({ admin, password })
-    const isPasswordValid = this.bcryptService.bcryptCompareUtil(password, admin.password);
+    const isPasswordValid = await this.bcryptService.bcryptCompareUtil(password, admin.password);
     if (!isPasswordValid) throw new ConflictException("Something went wrong");
     const { name, id } = admin;
     const token = this.jwtService.generateToken({ name, id, role: admin.role, isActive: admin.isActive, email });
@@ -133,7 +133,7 @@ export class AdminService {
     const admin = await this.adminRepo.findOne({ where: { email: data.email } });
     if (!admin) throw new NotFoundException("Something went wrong");
     if (admin.otp !== data.otp) throw new ConflictException("Something went wrong");
-    const hashedPassword = this.bcryptService.bcryptHashingUtil(data.password);
+    const hashedPassword = await this.bcryptService.bcryptHashingUtil(data.password);
     admin.password = hashedPassword;
     admin.otp = "";
     await this.adminRepo.save(admin);
@@ -163,7 +163,7 @@ export class AdminService {
 
       const otp = this.otpService.generateComplexOtp(6);
       admin.otp = otp;
-      const hashedOtp = this.bcryptService.bcryptHashingUtil(otp);
+      const hashedOtp = await this.bcryptService.bcryptHashingUtil(otp);
       const token = this.jwtService.generateToken({ otp: hashedOtp, email }, "1h");
       await this.mailService.sendMail({
         to: email,
@@ -179,13 +179,13 @@ export class AdminService {
 
     // Update password if changed
     if (password) {
-      const isSamePassword = this.bcryptService.bcryptCompareUtil(
+      const isSamePassword = await this.bcryptService.bcryptCompareUtil(
         password,
         admin.password
       );
 
       if (!isSamePassword) {
-        admin.password = await this.bcryptService.bcryptHashingUtil(password);
+        admin.password = await await this.bcryptService.bcryptHashingUtil(password);
       }
 
     }
@@ -203,7 +203,7 @@ export class AdminService {
 
     const admin = await this.adminRepo.findOne({ where: { email } });
     if (!admin) throw new NotFoundException("Something went wrong");
-    const isOtpCorrect = this.bcryptService.bcryptCompareUtil(admin.otp, otp);
+    const isOtpCorrect = await this.bcryptService.bcryptCompareUtil(admin.otp, otp);
     if (!isOtpCorrect) throw new ConflictException("Something went wrong");
     admin.isVerified = true;
     admin.otp = "";

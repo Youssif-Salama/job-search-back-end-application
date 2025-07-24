@@ -49,6 +49,12 @@ export default registerAs('envConfig', () => {
       name: process.env.CLOUDINARY_NAME,
       key: process.env.CLOUDINARY_API_KEY,
       secret: process.env.CLOUDINARY_API_SECRET
+    },
+    fe: {
+      url: process.env.FRONTEND_URL || 'http://localhost:3000/'
+    },
+    be: {
+      url: process.env.BACKEND_URL || 'http://localhost:3000/'
     }
   };
 });

@@ -12,5 +12,7 @@ export declare class AdminEntity {
     isVerified: boolean;
     otp: string;
     pages: pagesPermision;
+    createdAt: Date;
+    updatedAt: Date;
 }
 export {};

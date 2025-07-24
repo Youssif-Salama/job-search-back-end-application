@@ -4,17 +4,16 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class BcryptUtilService {
-  constructor(private envConfig: ConfigService) {}
+  constructor(private envConfig: ConfigService) { }
 
-  // bcrypt method
-  bcryptHashingUtil(password: string): string {
-    const saltRounds =
-      this.envConfig.get<number>('envConfig.bcrypt.salting') ?? 10;
-    return bcrypt.hashSync(password, +saltRounds);
+  // Async hashing
+  async bcryptHashingUtil(password: string): Promise<string> {
+    const saltRounds = this.envConfig.get<number>('envConfig.bcrypt.salting') ?? 10;
+    return await bcrypt.hash(password, +saltRounds);
   }
 
-  // bcrypt compare method
-  bcryptCompareUtil(password: string, hash: string): boolean {
-    return bcrypt.compareSync(password, hash);
+  // Async comparison
+  async bcryptCompareUtil(password: string, hashedPassword: string): Promise<boolean> {
+    return await bcrypt.compare(password, hashedPassword);
   }
 }

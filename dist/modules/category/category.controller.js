@@ -19,29 +19,16 @@ const swagger_1 = require("@nestjs/swagger");
 const public_decorator_1 = require("../../common/decorators/public.decorator");
 const localization_interceptor_1 = require("../../common/interceptors/localization.interceptor");
 const category_service_1 = require("./category.service");
-const platform_express_1 = require("@nestjs/platform-express");
-const storage_util_1 = require("../../common/utils/storage.util");
 let CategoryController = class CategoryController {
     categoryService;
-    storageServic;
-    constructor(categoryService, storageServic) {
+    constructor(categoryService) {
         this.categoryService = categoryService;
-        this.storageServic = storageServic;
     }
-    async addCategory(data, file, req) {
-        const bucket = 'categories';
-        const img = await this.storageServic.uploadFile(file, bucket);
-        if (!img) {
-            throw new Error('Image upload failed');
-        }
-        data.title = JSON.parse(data?.title);
-        data.description = JSON.parse(data?.description);
-        return this.categoryService.addCategory(data, img, req['user']?.id);
+    async addCategory(data, req) {
+        return this.categoryService.addCategory(data, req['user']?.id);
     }
-    async updateCategory(id, data, file, req) {
-        data.title = JSON.parse(data?.title);
-        data.description = JSON.parse(data?.description);
-        return this.categoryService.updateCategory(data, +id, file, req['user']?.id);
+    async updateCategory(id, data, req) {
+        return this.categoryService.updateCategory(data, +id, req['user']?.id);
     }
     async deleteCategory(id) {
         return this.categoryService.deleteCategory(+id);
@@ -60,17 +47,11 @@ exports.CategoryController = CategoryController;
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiBearerAuth)('access-token'),
-    (0, swagger_1.ApiConsumes)('multipart/form-data'),
-    (0, swagger_1.ApiBody)({
-        description: 'Add a new category',
-        type: category_dto_1.addCategoryDto,
-    }),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('img')),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.UploadedFile)()),
-    __param(2, (0, common_1.Req)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [category_dto_1.CategoryFormDataDto, Object, Request]),
+    __metadata("design:paramtypes", [category_dto_1.addCategoryDto,
+        Request]),
     __metadata("design:returntype", Promise)
 ], CategoryController.prototype, "addCategory", null);
 __decorate([
@@ -78,18 +59,12 @@ __decorate([
     (0, swagger_1.ApiBearerAuth)('access-token'),
     (0, common_1.HttpCode)(200),
     (0, swagger_1.ApiParam)({ name: 'id', required: true, type: Number }),
-    (0, swagger_1.ApiConsumes)('multipart/form-data'),
-    (0, swagger_1.ApiBody)({
-        description: 'Update an existing category',
-        type: category_dto_1.updateCategoryDto,
-    }),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)("img")),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
-    __param(2, (0, common_1.UploadedFile)()),
-    __param(3, (0, common_1.Req)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, category_dto_1.CategoryFormDataDto, Object, Request]),
+    __metadata("design:paramtypes", [Number, category_dto_1.updateCategoryDto,
+        Request]),
     __metadata("design:returntype", Promise)
 ], CategoryController.prototype, "updateCategory", null);
 __decorate([
@@ -146,6 +121,6 @@ __decorate([
 ], CategoryController.prototype, "getOneCategory", null);
 exports.CategoryController = CategoryController = __decorate([
     (0, common_1.Controller)('category'),
-    __metadata("design:paramtypes", [category_service_1.CategoryService, storage_util_1.StorageUtilService])
+    __metadata("design:paramtypes", [category_service_1.CategoryService])
 ], CategoryController);
 //# sourceMappingURL=category.controller.js.map

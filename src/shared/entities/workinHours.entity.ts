@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { DoctorEntity } from "./doctors.entity";
 
 type DaysEn = 'saturday' | 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday';
@@ -20,6 +20,12 @@ export class WorkingHoursEntity {
         from: string;
         to: string;
     };
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 
     @ManyToOne(() => DoctorEntity, doctor => doctor.workinHours)
     @JoinColumn({ name: 'doctorId' })

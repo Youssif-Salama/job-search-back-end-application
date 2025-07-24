@@ -1,10 +1,11 @@
-import { Check, Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Check, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { PlanEntity } from './plans.entity';
 import { RequestEntity } from './requests.entity';
 import { WorkingHoursEntity } from './workinHours.entity';
 import { AppointmentEntity } from './appointments.entity';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { CredentialEntity } from './credentials.entity';
+import { CategoryEntity } from './categoris.entity';
 
 
 class Localization {
@@ -15,6 +16,11 @@ class Localization {
     @IsString()
     @IsNotEmpty()
     ar: string;
+}
+
+export interface FileClass {
+    public_id: string;
+    url: string;
 }
 
 @Entity()
@@ -31,13 +37,10 @@ export class DoctorEntity {
     phone: string;
 
     @Column({ type: 'boolean', default: false })
-    isBlocked: boolean;
-
-    @Column({ type: 'boolean', default: false })
     isDeleted: boolean;
 
-    @Column({ type: 'varchar' })
-    img: string;
+    @Column({ type: 'jsonb', nullable: true })
+    img: FileClass;
 
     @Column({ type: 'jsonb', nullable: false })
     fullName: {
@@ -57,7 +60,7 @@ export class DoctorEntity {
         count: number;
     };
 
-    @Column({ type: 'jsonb', nullable: false })
+    @Column({ type: 'jsonb', nullable: true })
     clinc: {
         name: Localization;
         description: Localization;
@@ -65,22 +68,41 @@ export class DoctorEntity {
             link: Localization;
             description: Localization;
         };
+        imgs: FileClass[];
     };
 
-    @Column({ type: 'jsonb', nullable: false })
+    @Column({ type: 'jsonb', nullable: true })
     auth: {
-        card: string;
+        card: FileClass;
         id: {
-            fid: string;
-            sid: string;
+            fid: FileClass;
+            sid: FileClass;
         };
     };
 
-    @Column({ type: 'int', nullable: false })
+    @Column({ type: 'boolean', default: false })
+    isActive: boolean;
+
+    @Column({ type: 'boolean', default: false })
+    isVerified: boolean;
+
+    @Column({ type: 'varchar', nullable: true })
+    otp: string;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @Column({ type: 'int', nullable: true })
     lsUpBy: number;
 
     @ManyToOne(() => PlanEntity, plan => plan.doctors)
     plan: PlanEntity;
+
+    @ManyToOne(() => CategoryEntity, category => category.doctors)
+    category: CategoryEntity
 
     @OneToMany(() => RequestEntity, request => request.doctor)
     requests: RequestEntity[];
@@ -96,3 +118,6 @@ export class DoctorEntity {
     credential: CredentialEntity;
 
 }
+
+
+

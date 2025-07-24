@@ -16,6 +16,8 @@ let WorkingHoursEntity = class WorkingHoursEntity {
     id;
     day;
     time;
+    createdAt;
+    updatedAt;
     doctor;
 };
 exports.WorkingHoursEntity = WorkingHoursEntity;
@@ -31,6 +33,14 @@ __decorate([
     (0, typeorm_1.Column)({ type: "jsonb", nullable: false }),
     __metadata("design:type", Object)
 ], WorkingHoursEntity.prototype, "time", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], WorkingHoursEntity.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], WorkingHoursEntity.prototype, "updatedAt", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => doctors_entity_1.DoctorEntity, doctor => doctor.workinHours),
     (0, typeorm_1.JoinColumn)({ name: 'doctorId' }),

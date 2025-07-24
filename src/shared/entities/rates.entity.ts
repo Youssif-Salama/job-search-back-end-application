@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ReservationEntity } from "./reservations.entity";
 
 @Entity()
@@ -11,6 +11,12 @@ export class RateEntity {
 
     @Column({ type: "int", nullable: false })
     rate: number;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 
     @OneToOne(() => ReservationEntity, reservation => reservation.rate)
     @JoinColumn({ name: 'reservationId' })

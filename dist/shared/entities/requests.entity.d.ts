@@ -6,6 +6,8 @@ export declare class RequestEntity {
     done: boolean;
     type: RequestType;
     lsUpBy: number;
+    createdAt: Date;
+    updatedAt: Date;
     plan: PlanEntity;
     doctor: DoctorEntity;
 }

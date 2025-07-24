@@ -22,6 +22,6 @@ import { CloudinaryBaseUtilService } from 'src/common/utils/cloudinary.util';
       useClass: AuthGuard,
     },
   ],
-  exports: [],
+  exports: [CategoryService,TypeOrmModule],
 })
 export class CategoryModule { }

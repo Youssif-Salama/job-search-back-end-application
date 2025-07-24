@@ -21,6 +21,7 @@ const handlebars_adapter_1 = require("@nestjs-modules/mailer/dist/adapters/handl
 const category_module_1 = require("./modules/category/category.module");
 const doctor_module_1 = require("./modules/doctor/doctor.module");
 const credential_module_1 = require("./modules/credential/credential.module");
+const file_module_1 = require("./modules/file/file.module");
 let envPath;
 switch (process.env.NODE_ENV) {
     case 'production':
@@ -76,6 +77,7 @@ exports.AppModule = AppModule = __decorate([
             category_module_1.CategoryModule,
             doctor_module_1.DoctorModule,
             credential_module_1.CredentialModule,
+            file_module_1.FileModule
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

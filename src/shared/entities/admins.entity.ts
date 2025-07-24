@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, Check } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, Check, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 
 type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch';
@@ -43,5 +43,11 @@ export class AdminEntity {
 
   @Column({ type: "jsonb", nullable: true })
   pages: pagesPermision
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
 

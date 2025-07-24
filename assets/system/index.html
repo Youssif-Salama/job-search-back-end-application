@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drs - Doctor Verify Email</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            text-transform: capitalize;
+            color: #1f1f1f;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            background-color: #e6efff;
+            padding: 40px 30px;
+            border-radius: 16px;
+            border: solid 1px #ccc;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        label {
+            width: 100%;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: solid 1px #ccc;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px #e6efff;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: #1e429b;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 12px;
+            width: 100%;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #163577;
+        }
+    </style>
+</head>
+
+<body style="position: relative;">
+    <div>
+        <i class="fa-solid fa-globe lang-icon" style="position: absolute; top: 10px; left: 10px;"></i>
+        <span style="position: absolute; top: 10px; left: 40px; font-size: 0.8rem; color: #555;"
+            id="lang">English</span>
+    </div>
+    <h1 id="head">Doctor <span style="color:#1e429b;">Youssif</span> email verification</h1>
+
+    <form method="POST">
+        <label for="otp" id="otp-label">Enter your OTP</label>
+        <input type="text" name="otp" id="otp" placeholder="123456" required />
+        <button type="submit" id="otp-button">Send</button>
+    </form>
+
+    <script>
+        // catch elements
+        const head = document.getElementById('head');
+        const lang = document.getElementById('lang');
+        const langIcon = document.querySelector('.lang-icon');
+        const otpLabel = document.getElementById('otp-label');
+        const otpButton = document.getElementById('otp-button');
+        const form = document.querySelector('form');
+        const token = new URLSearchParams(window.location.search).get('token');
+
+        let defLang = 'en';
+
+        // toggle language
+        langIcon.addEventListener("click", () => {
+            if (defLang === 'en') {
+                defLang = 'ar';
+                head.innerHTML = 'التحقق من بريد الدكتور <span style="color:#1e429b;">يوسف</span>';
+                lang.innerHTML = 'العربية';
+                otpLabel.innerHTML = 'أدخل رمز التحقق الخاص بك';
+                otpButton.innerHTML = 'إرسال';
+                form.style.direction = 'rtl';
+            } else {
+                defLang = 'en';
+                head.innerHTML = 'Doctor <span style="color:#1e429b;">Youssif</span> email verification';
+                lang.innerHTML = 'English';
+                otpLabel.innerHTML = 'Enter your OTP';
+                otpButton.innerHTML = 'Send';
+                form.style.direction = 'ltr';
+            }
+        });
+
+        // handle form submission
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const otp = document.getElementById('otp').value;
+
+            try {
+                const res = await fetch("/verify_doctor_email_after_update_otp_using?token=" + token, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ otp })
+                });
+
+                const result = await res.json();
+
+                if (res.status === 200) {
+                    alert('Email verified successfully! Redirecting...');
+                    form.innerHTML = '<h1>Redirecting in 2s...</h1>';
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                } else {
+                    alert(result.message || 'An error occurred while verifying your email.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network or server error.');
+            }
+        });
+    </script>
+
+    <script src="https://kit.fontawesome.com/5c885545a0.js" crossorigin="anonymous"></script>
+</body>
+
+</html>

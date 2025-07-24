@@ -20,6 +20,8 @@ let AppointmentEntity = class AppointmentEntity {
     description;
     closed;
     done;
+    createdAt;
+    updatedAt;
     doctor;
     reservation;
 };
@@ -48,6 +50,14 @@ __decorate([
     (0, typeorm_1.Column)({ type: "boolean", default: false, nullable: true }),
     __metadata("design:type", Boolean)
 ], AppointmentEntity.prototype, "done", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], AppointmentEntity.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], AppointmentEntity.prototype, "updatedAt", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => doctors_entity_1.DoctorEntity, doctor => doctor.appointments),
     __metadata("design:type", doctors_entity_1.DoctorEntity)

@@ -9,6 +9,8 @@ export declare class ReservationEntity {
         code: string;
         used: boolean;
     };
+    createdAt: Date;
+    updatedAt: Date;
     appointment: AppointmentEntity;
     rate?: RateEntity;
 }

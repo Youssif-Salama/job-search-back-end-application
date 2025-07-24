@@ -1,4 +1,4 @@
-import { Check, Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Check, Column, CreateDateColumn, Entity, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { DoctorEntity } from "./doctors.entity";
 
 @Entity()
@@ -12,6 +12,12 @@ export class CredentialEntity {
 
     @Column({ type: 'int', nullable: false, default: 30 })
     credits: number;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 
     @OneToOne(() => DoctorEntity, doctor => doctor.credential)
     doctor: DoctorEntity;

@@ -7,10 +7,15 @@ import { PlanModule } from '../plan/plan.module';
 import { CredentialModule } from '../credential/credential.module';
 import { BcryptUtilService } from 'src/common/utils/bcrypt.util';
 import { CodeUtilService } from 'src/common/utils/code.util';
+import { JwtUtilService } from 'src/common/utils/jwt.utils';
+import { OtpUtilService } from 'src/common/utils/otp.util';
+import { MailUtilService } from 'src/common/utils/mail.util';
+import { CategoryService } from '../category/category.service';
+import { CategoryModule } from '../category/category.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([DoctorEntity]), PlanModule, CredentialModule],
+  imports: [TypeOrmModule.forFeature([DoctorEntity]), PlanModule, CredentialModule,CategoryModule],
   controllers: [DoctorController],
-  providers: [DoctorService,BcryptUtilService,CodeUtilService]
+  providers: [DoctorService, BcryptUtilService, CodeUtilService, JwtUtilService, OtpUtilService, MailUtilService,BcryptUtilService]
 })
 export class DoctorModule { }

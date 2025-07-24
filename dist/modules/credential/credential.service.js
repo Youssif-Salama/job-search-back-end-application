@@ -27,12 +27,15 @@ let CredentialService = class CredentialService {
     }
     async createDoctorCredits(data) {
         const { password, doctor } = data;
-        const hashedPassword = this.bcryptService.bcryptHashingUtil(password);
+        const hashedPassword = await this.bcryptService.bcryptHashingUtil(password);
         const createCredit = this.credintialRepo.create({ password: hashedPassword, doctor });
         const saveCredit = await this.credintialRepo.save(createCredit);
         if (!saveCredit)
             return false;
         return saveCredit;
+    }
+    async saveDoctorCredential(data) {
+        const updateCredits = await this.credintialRepo.save(data);
     }
 };
 exports.CredentialService = CredentialService;

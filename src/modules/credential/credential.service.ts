@@ -10,10 +10,14 @@ export class CredentialService {
     constructor(@InjectRepository(CredentialEntity) private readonly credintialRepo: Repository<CredentialEntity>, private readonly bcryptService: BcryptUtilService) { }
     async createDoctorCredits(data: CreateCredentialDto) {
         const { password, doctor } = data;
-        const hashedPassword = this.bcryptService.bcryptHashingUtil(password);
+        const hashedPassword = await this.bcryptService.bcryptHashingUtil(password);
         const createCredit = this.credintialRepo.create({ password: hashedPassword, doctor });
         const saveCredit = await this.credintialRepo.save(createCredit);
         if (!saveCredit) return false;
         return saveCredit;
+    }
+
+    async saveDoctorCredential(data: CredentialEntity) {
+        const updateCredits = await this.credintialRepo.save(data);
     }
 }

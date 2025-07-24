@@ -17,6 +17,7 @@ const workinHours_entity_1 = require("./workinHours.entity");
 const appointments_entity_1 = require("./appointments.entity");
 const class_validator_1 = require("class-validator");
 const credentials_entity_1 = require("./credentials.entity");
+const categoris_entity_1 = require("./categoris.entity");
 class Localization {
     en;
     ar;
@@ -35,7 +36,6 @@ let DoctorEntity = class DoctorEntity {
     id;
     email;
     phone;
-    isBlocked;
     isDeleted;
     img;
     fullName;
@@ -43,8 +43,14 @@ let DoctorEntity = class DoctorEntity {
     code;
     clinc;
     auth;
+    isActive;
+    isVerified;
+    otp;
+    createdAt;
+    updatedAt;
     lsUpBy;
     plan;
+    category;
     requests;
     workinHours;
     appointments;
@@ -66,14 +72,10 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ type: 'boolean', default: false }),
     __metadata("design:type", Boolean)
-], DoctorEntity.prototype, "isBlocked", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'boolean', default: false }),
-    __metadata("design:type", Boolean)
 ], DoctorEntity.prototype, "isDeleted", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar' }),
-    __metadata("design:type", String)
+    (0, typeorm_1.Column)({ type: 'jsonb', nullable: true }),
+    __metadata("design:type", Object)
 ], DoctorEntity.prototype, "img", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'jsonb', nullable: false }),
@@ -88,21 +90,45 @@ __decorate([
     __metadata("design:type", Object)
 ], DoctorEntity.prototype, "code", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'jsonb', nullable: false }),
+    (0, typeorm_1.Column)({ type: 'jsonb', nullable: true }),
     __metadata("design:type", Object)
 ], DoctorEntity.prototype, "clinc", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'jsonb', nullable: false }),
+    (0, typeorm_1.Column)({ type: 'jsonb', nullable: true }),
     __metadata("design:type", Object)
 ], DoctorEntity.prototype, "auth", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'int', nullable: false }),
+    (0, typeorm_1.Column)({ type: 'boolean', default: false }),
+    __metadata("design:type", Boolean)
+], DoctorEntity.prototype, "isActive", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'boolean', default: false }),
+    __metadata("design:type", Boolean)
+], DoctorEntity.prototype, "isVerified", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", String)
+], DoctorEntity.prototype, "otp", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], DoctorEntity.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], DoctorEntity.prototype, "updatedAt", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'int', nullable: true }),
     __metadata("design:type", Number)
 ], DoctorEntity.prototype, "lsUpBy", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => plans_entity_1.PlanEntity, plan => plan.doctors),
     __metadata("design:type", plans_entity_1.PlanEntity)
 ], DoctorEntity.prototype, "plan", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => categoris_entity_1.CategoryEntity, category => category.doctors),
+    __metadata("design:type", categoris_entity_1.CategoryEntity)
+], DoctorEntity.prototype, "category", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => requests_entity_1.RequestEntity, request => request.doctor),
     __metadata("design:type", Array)

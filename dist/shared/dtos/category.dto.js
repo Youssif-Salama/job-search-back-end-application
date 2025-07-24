@@ -9,11 +9,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CategoryFormDataDto = exports.updateCategoryDto = exports.addCategoryDto = exports.ImgType = exports.ImgDto = exports.CategoryDto = void 0;
+exports.updateCategoryDto = exports.addCategoryDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
-const typeorm_1 = require("typeorm");
 class MultiLangString {
     en;
     ar;
@@ -21,13 +20,13 @@ class MultiLangString {
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'category' }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.MinLength)(3),
     __metadata("design:type", String)
 ], MultiLangString.prototype, "en", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'فئة' }),
+    (0, swagger_1.ApiProperty)({ example: 'تصنيف' }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.MinLength)(3),
     __metadata("design:type", String)
 ], MultiLangString.prototype, "ar", void 0);
 class MultiLangText {
@@ -37,76 +36,47 @@ class MultiLangText {
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'category description' }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.MinLength)(10),
     __metadata("design:type", String)
 ], MultiLangText.prototype, "en", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'وصف الفئة' }),
+    (0, swagger_1.ApiProperty)({ example: 'وصف التصنيف' }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.MinLength)(10),
     __metadata("design:type", String)
 ], MultiLangText.prototype, "ar", void 0);
-class CategoryDto {
+class addCategoryDto {
     title;
     description;
 }
-exports.CategoryDto = CategoryDto;
+exports.addCategoryDto = addCategoryDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ type: MultiLangString }),
     (0, class_validator_1.ValidateNested)(),
     (0, class_transformer_1.Type)(() => MultiLangString),
-    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", MultiLangString)
-], CategoryDto.prototype, "title", void 0);
+], addCategoryDto.prototype, "title", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ type: MultiLangText }),
     (0, class_validator_1.ValidateNested)(),
     (0, class_transformer_1.Type)(() => MultiLangText),
-    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", MultiLangText)
-], CategoryDto.prototype, "description", void 0);
-class ImgDto {
-    img;
-}
-exports.ImgDto = ImgDto;
-__decorate([
-    (0, swagger_1.ApiProperty)({ name: 'img', description: 'category img', type: 'string', format: 'binary' }),
-    __metadata("design:type", typeorm_1.Binary)
-], ImgDto.prototype, "img", void 0);
-class ImgType {
-    url;
-    public_id;
-}
-exports.ImgType = ImgType;
-class addCategoryDto extends CategoryDto {
-    img;
-}
-exports.addCategoryDto = addCategoryDto;
-__decorate([
-    (0, swagger_1.ApiProperty)({ name: 'img', description: 'category img', type: 'string', format: 'binary' }),
-    __metadata("design:type", typeorm_1.Binary)
-], addCategoryDto.prototype, "img", void 0);
-class updateCategoryDto extends CategoryDto {
-    img;
-}
-exports.updateCategoryDto = updateCategoryDto;
-__decorate([
-    (0, swagger_1.ApiProperty)({ name: 'img', description: 'category img', type: 'string', format: 'binary' }),
-    __metadata("design:type", typeorm_1.Binary)
-], updateCategoryDto.prototype, "img", void 0);
-class CategoryFormDataDto {
+], addCategoryDto.prototype, "description", void 0);
+class updateCategoryDto {
     title;
     description;
 }
-exports.CategoryFormDataDto = CategoryFormDataDto;
+exports.updateCategoryDto = updateCategoryDto;
 __decorate([
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CategoryFormDataDto.prototype, "title", void 0);
+    (0, swagger_1.ApiProperty)({ type: MultiLangString }),
+    (0, class_validator_1.ValidateNested)(),
+    (0, class_transformer_1.Type)(() => MultiLangString),
+    __metadata("design:type", MultiLangString)
+], updateCategoryDto.prototype, "title", void 0);
 __decorate([
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CategoryFormDataDto.prototype, "description", void 0);
+    (0, swagger_1.ApiProperty)({ type: MultiLangText }),
+    (0, class_validator_1.ValidateNested)(),
+    (0, class_transformer_1.Type)(() => MultiLangText),
+    __metadata("design:type", MultiLangText)
+], updateCategoryDto.prototype, "description", void 0);
 //# sourceMappingURL=category.dto.js.map

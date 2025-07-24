@@ -19,6 +19,8 @@ let PlanEntity = class PlanEntity {
     description;
     price;
     lsUpBy;
+    createdAt;
+    updatedAt;
     doctors;
     requests;
 };
@@ -43,6 +45,14 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'int', nullable: false }),
     __metadata("design:type", Number)
 ], PlanEntity.prototype, "lsUpBy", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], PlanEntity.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], PlanEntity.prototype, "updatedAt", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => doctors_entity_1.DoctorEntity, doctor => doctor.plan),
     __metadata("design:type", Array)
