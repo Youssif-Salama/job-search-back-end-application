@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build:prod": "NODE_ENV=production nest build && cp -r src/common/templates dist/common/",
+    "build:prod": "NODE_ENV=production nest build && cp -r src/common/templates dist/common/ && cp -r src/shared/data dist/shared/data",
     "copy:assets": "cp -r src/common/templates dist/common/ && cp -r src/shared/data dist/shared/data",
     "copy:templates": "cp -r src/common/templates dist/common/",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
