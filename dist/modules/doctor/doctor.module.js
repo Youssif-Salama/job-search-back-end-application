@@ -20,14 +20,15 @@ const jwt_utils_1 = require("../../common/utils/jwt.utils");
 const otp_util_1 = require("../../common/utils/otp.util");
 const mail_util_1 = require("../../common/utils/mail.util");
 const category_module_1 = require("../category/category.module");
+const workinHours_entity_1 = require("../../shared/entities/workinHours.entity");
 let DoctorModule = class DoctorModule {
 };
 exports.DoctorModule = DoctorModule;
 exports.DoctorModule = DoctorModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([doctors_entity_1.DoctorEntity]), plan_module_1.PlanModule, credential_module_1.CredentialModule, category_module_1.CategoryModule],
+        imports: [typeorm_1.TypeOrmModule.forFeature([doctors_entity_1.DoctorEntity, workinHours_entity_1.WorkingHoursEntity]), plan_module_1.PlanModule, credential_module_1.CredentialModule, category_module_1.CategoryModule],
         controllers: [doctor_controller_1.DoctorController],
-        providers: [doctor_service_1.DoctorService, bcrypt_util_1.BcryptUtilService, code_util_1.CodeUtilService, jwt_utils_1.JwtUtilService, otp_util_1.OtpUtilService, mail_util_1.MailUtilService, bcrypt_util_1.BcryptUtilService]
+        providers: [doctor_service_1.DoctorService, bcrypt_util_1.BcryptUtilService, code_util_1.CodeUtilService, jwt_utils_1.JwtUtilService, otp_util_1.OtpUtilService, mail_util_1.MailUtilService, bcrypt_util_1.BcryptUtilService],
     })
 ], DoctorModule);
 //# sourceMappingURL=doctor.module.js.map

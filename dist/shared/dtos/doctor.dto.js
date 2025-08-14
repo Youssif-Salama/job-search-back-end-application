@@ -9,11 +9,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.doctorProfleVerifeAccountEmailDto = exports.updatePasswordDto = exports.doctorProfileChooseCategoryDto = exports.doctorProfileResetPasswordDoDto = exports.doctorProfileResetPasswordDto = exports.DoctorUpdateRawDataDto = exports.LoginDoctorDto = exports.DoctorFilesDto = exports.AddDoctorDto = void 0;
+exports.GetDoctorQueriesDto = exports.orderKeyEnums = exports.ClincAndWorkingDaysDto = exports.PaymentWay = exports.DoctorProfileViewerDto = exports.doctorProfleVerifeAccountEmailDto = exports.updatePasswordDto = exports.doctorProfileChooseCategoryDto = exports.doctorProfileResetPasswordDoDto = exports.doctorProfileResetPasswordDto = exports.DoctorUpdateRawDataDto = exports.LoginDoctorDto = exports.DoctorFilesDto = exports.AddDoctorDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const swagger_1 = require("@nestjs/swagger");
 const typeorm_1 = require("typeorm");
+const working_hours_dto_1 = require("./working-hours.dto");
 class FullNameDto {
     fname;
     lname;
@@ -446,4 +447,185 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], doctorProfleVerifeAccountEmailDto.prototype, "otp", void 0);
+class DoctorProfileViewerDto {
+    viewerId;
+    viewerIp;
+}
+exports.DoctorProfileViewerDto = DoctorProfileViewerDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: "viewerId",
+        description: "viewerId go here",
+        example: 2,
+        required: false,
+        type: "number"
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], DoctorProfileViewerDto.prototype, "viewerId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: "viewerIp",
+        description: "viewerIp go here",
+        example: 2,
+        required: false,
+        type: "string"
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", Number)
+], DoctorProfileViewerDto.prototype, "viewerIp", void 0);
+var PaymentWay;
+(function (PaymentWay) {
+    PaymentWay["CASH"] = "cash";
+    PaymentWay["VESA"] = "vesa";
+    PaymentWay["BUCKET"] = "bucket";
+})(PaymentWay || (exports.PaymentWay = PaymentWay = {}));
+class ClincForWorkingHourDto {
+    name;
+    description;
+    address;
+    phone;
+    whats;
+    landingPhone;
+    price;
+    rePrice;
+    paymentWay;
+}
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Clinic name in multiple languages',
+        example: { en: 'Family Clinic', ar: 'عيادة الأسرة' },
+        required: true,
+        type: Object,
+    }),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Object)
+], ClincForWorkingHourDto.prototype, "name", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Clinic description in multiple languages',
+        example: { en: 'We care about your health', ar: 'نحن نهتم بصحتك' },
+        required: true,
+        type: Object,
+    }),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Object)
+], ClincForWorkingHourDto.prototype, "description", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Clinic address including link and description',
+        required: true,
+        type: () => ClincAddressDto,
+    }),
+    (0, class_validator_1.ValidateNested)(),
+    (0, class_transformer_1.Type)(() => ClincAddressDto),
+    __metadata("design:type", ClincAddressDto)
+], ClincForWorkingHourDto.prototype, "address", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: "phone",
+        description: "normal phone number, starts with +20",
+        type: "string",
+        required: true
+    }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], ClincForWorkingHourDto.prototype, "phone", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: "whats",
+        description: "normal whats number",
+        type: "string",
+        required: true
+    }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], ClincForWorkingHourDto.prototype, "whats", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: "landing phone",
+        description: "normal landing phone number",
+        type: "string",
+        required: true
+    }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], ClincForWorkingHourDto.prototype, "landingPhone", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: "price",
+        description: "price",
+        type: "number",
+        required: true
+    }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], ClincForWorkingHourDto.prototype, "price", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: "rePrice",
+        description: "re price",
+        type: "number",
+        required: true
+    }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], ClincForWorkingHourDto.prototype, "rePrice", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        enum: PaymentWay,
+        description: "Payment method",
+        required: true
+    }),
+    (0, class_validator_1.IsEnum)(PaymentWay),
+    __metadata("design:type", String)
+], ClincForWorkingHourDto.prototype, "paymentWay", void 0);
+class ClincAndWorkingDaysDto {
+    clinc;
+    workingHours;
+}
+exports.ClincAndWorkingDaysDto = ClincAndWorkingDaysDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: "clinc",
+        type: ClincForWorkingHourDto
+    }),
+    (0, class_validator_1.ValidateNested)(),
+    (0, class_transformer_1.Type)(() => ClincForWorkingHourDto),
+    __metadata("design:type", ClincForWorkingHourDto)
+], ClincAndWorkingDaysDto.prototype, "clinc", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: "workingHours",
+        type: [working_hours_dto_1.AddWoringHourDto]
+    }),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => working_hours_dto_1.AddWoringHourDto),
+    __metadata("design:type", Array)
+], ClincAndWorkingDaysDto.prototype, "workingHours", void 0);
+var orderKeyEnums;
+(function (orderKeyEnums) {
+    orderKeyEnums["RATING"] = "rating";
+    orderKeyEnums["PRICE"] = "price";
+    orderKeyEnums["VISITS"] = "views";
+})(orderKeyEnums || (exports.orderKeyEnums = orderKeyEnums = {}));
+class GetDoctorQueriesDto {
+    page;
+    limit;
+    search;
+    orderKey;
+    governorate;
+    center;
+    orderValue;
+    best;
+    price;
+}
+exports.GetDoctorQueriesDto = GetDoctorQueriesDto;
 //# sourceMappingURL=doctor.dto.js.map

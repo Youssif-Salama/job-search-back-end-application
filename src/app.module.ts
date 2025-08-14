@@ -14,6 +14,9 @@ import { DoctorModule } from './modules/doctor/doctor.module';
 import { CredentialModule } from './modules/credential/credential.module';
 import { FileModule } from './modules/file/file.module';
 import { JwtUtilService } from './common/utils/jwt.utils';
+import { CommonModule } from './modules/common/common.module';
+import { LocationModule } from './modules/location/location.module';
+import { WorkinHoursModule } from './modules/workin-hours/workin-hours.module';
 
 let envPath: string;
 switch (process.env.NODE_ENV) {
@@ -70,7 +73,10 @@ switch (process.env.NODE_ENV) {
     CategoryModule,
     DoctorModule,
     CredentialModule,
-    FileModule
+    FileModule,
+    CommonModule,
+    LocationModule,
+    WorkinHoursModule
   ],
   controllers: [AppController],
   providers: [AppService],

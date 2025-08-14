@@ -30,14 +30,25 @@ export declare class DoctorEntity {
         code: string;
         count: number;
     };
+    views: {
+        viewer: DoctorEntity | null;
+        ip: string;
+        date: Date;
+    }[];
     clinc: {
         name: Localization;
         description: Localization;
+        phone?: string;
+        whats?: string;
+        landingPhone?: string;
+        price?: number;
+        rePrice?: number;
+        paymentWay?: "cash" | "vesa" | "bucket";
         address: {
             link: Localization;
-            description: Localization;
+            description?: Localization;
         };
-        imgs: FileClass[];
+        imgs?: FileClass[];
     };
     auth: {
         card: FileClass;
@@ -48,6 +59,7 @@ export declare class DoctorEntity {
     };
     isActive: boolean;
     isVerified: boolean;
+    rating: number;
     otp: string;
     createdAt: Date;
     updatedAt: Date;

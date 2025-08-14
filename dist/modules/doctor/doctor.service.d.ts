@@ -1,4 +1,4 @@
-import { AddDoctorDto, doctorProfileChooseCategoryDto, doctorProfileResetPasswordDoDto, doctorProfileResetPasswordDto, doctorProfleVerifeAccountEmailDto, DoctorUpdateRawDataDto, LoginDoctorDto, updatePasswordDto } from 'src/shared/dtos/doctor.dto';
+import { AddDoctorDto, ClincAndWorkingDaysDto, doctorProfileChooseCategoryDto, doctorProfileResetPasswordDoDto, doctorProfileResetPasswordDto, DoctorProfileViewerDto, doctorProfleVerifeAccountEmailDto, DoctorUpdateRawDataDto, GetDoctorQueriesDto, LoginDoctorDto, updatePasswordDto } from 'src/shared/dtos/doctor.dto';
 import { DoctorEntity } from 'src/shared/entities/doctors.entity';
 import { Repository } from 'typeorm';
 import { CredentialService } from '../credential/credential.service';
@@ -12,8 +12,10 @@ import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { BcryptUtilService } from 'src/common/utils/bcrypt.util';
 import { CategoryService } from '../category/category.service';
+import { WorkingHoursEntity } from 'src/shared/entities/workinHours.entity';
 export declare class DoctorService {
     private readonly doctorRepo;
+    private readonly workingHoursRepo;
     private readonly credintialService;
     private readonly planService;
     private readonly codeService;
@@ -23,7 +25,7 @@ export declare class DoctorService {
     private readonly config;
     private readonly bcryptService;
     private readonly categoryService;
-    constructor(doctorRepo: Repository<DoctorEntity>, credintialService: CredentialService, planService: PlanService, codeService: CodeUtilService, emailService: MailUtilService, otpService: OtpUtilService, jwtService: JwtUtilService, config: ConfigService, bcryptService: BcryptUtilService, categoryService: CategoryService);
+    constructor(doctorRepo: Repository<DoctorEntity>, workingHoursRepo: Repository<WorkingHoursEntity>, credintialService: CredentialService, planService: PlanService, codeService: CodeUtilService, emailService: MailUtilService, otpService: OtpUtilService, jwtService: JwtUtilService, config: ConfigService, bcryptService: BcryptUtilService, categoryService: CategoryService);
     doctorSignup(data: AddDoctorDto): Promise<DoctorResponseType & {
         token: string;
     }>;
@@ -58,4 +60,11 @@ export declare class DoctorService {
     }>;
     doctorProfileChooseCategory(data: doctorProfileChooseCategoryDto, id: number): Promise<DoctorEntity>;
     doctorProfileUpdatePassword(data: updatePasswordDto, id: number): Promise<DoctorEntity>;
+    doctorProfileView(viewedDoctorId: number, data: DoctorProfileViewerDto): Promise<void>;
+    getMyData(id: number): Promise<DoctorEntity>;
+    clincAndWorkingDays(data: ClincAndWorkingDaysDto, doctorId: number): Promise<{
+        doctor: DoctorEntity;
+        workingHours: WorkingHoursEntity[];
+    }>;
+    getAllDoctors(queryObj: GetDoctorQueriesDto): Promise<import("nestjs-typeorm-paginate").Pagination<DoctorEntity, import("nestjs-typeorm-paginate").IPaginationMeta>>;
 }

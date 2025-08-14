@@ -52,7 +52,7 @@ export class CategoryService {
   async getAllCategories(
     page: number,
     limit: number,
-    localeCode: string,
+    localeCode?: string,
   ): Promise<Pagination<any>> {
     if (!localeCode) {
       const queryBuilder = this.categoryRepo.createQueryBuilder('category')

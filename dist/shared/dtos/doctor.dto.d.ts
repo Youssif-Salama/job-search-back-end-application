@@ -1,4 +1,5 @@
 import { Binary } from "typeorm";
+import { AddWoringHourDto } from "./working-hours.dto";
 declare class FullNameDto {
     fname: string;
     lname: string;
@@ -61,5 +62,48 @@ export declare class updatePasswordDto {
 export declare class doctorProfleVerifeAccountEmailDto {
     email: string;
     otp: string;
+}
+export declare class DoctorProfileViewerDto {
+    viewerId: number;
+    viewerIp: number;
+}
+export declare enum PaymentWay {
+    CASH = "cash",
+    VESA = "vesa",
+    BUCKET = "bucket"
+}
+declare class ClincForWorkingHourDto {
+    name: Localization;
+    description: Localization;
+    address: ClincAddressDto;
+    phone: string;
+    whats: string;
+    landingPhone: string;
+    price: number;
+    rePrice: number;
+    paymentWay: PaymentWay;
+}
+export declare class ClincAndWorkingDaysDto {
+    clinc: ClincForWorkingHourDto;
+    workingHours: AddWoringHourDto[];
+}
+export declare enum orderKeyEnums {
+    RATING = "rating",
+    PRICE = "price",
+    VISITS = "views"
+}
+export declare class GetDoctorQueriesDto {
+    page?: number;
+    limit?: number;
+    search?: string;
+    orderKey?: orderKeyEnums;
+    governorate?: string;
+    center?: string;
+    orderValue?: "ASC" | "DESC";
+    best?: boolean;
+    price?: {
+        from: number;
+        to: number;
+    };
 }
 export {};

@@ -35,6 +35,10 @@ let DoctorController = class DoctorController {
     async doctorLogin(data) {
         return this.doctorService.doctorLogin(data);
     }
+    async addClincAndWorkingHours(data, req) {
+        const { id } = req['user'];
+        return this.doctorService.clincAndWorkingDays(data, id);
+    }
     async updateMyDoctorProfileRawData(data, req) {
         const { id } = req['user'];
         return this.doctorService.updateMyDoctorProfileRawData(data, id);
@@ -67,6 +71,28 @@ let DoctorController = class DoctorController {
         const { id } = req['user'];
         return this.doctorService.doctorProfileUpdatePassword(data, +id);
     }
+    async doctorProfileView(id, data) {
+        return this.doctorService.doctorProfileView(+id, data);
+    }
+    async getMyData(req) {
+        const { id } = req['user'];
+        return this.doctorService.getMyData(id);
+    }
+    async getAllDoctors(queries) {
+        const { orderKey, orderValue, search, best, price, governorate, center, page = 1, limit = 1 } = queries;
+        const directDoctoFilters = {
+            page: Number(page),
+            limit: Number(limit),
+        };
+        orderKey && (directDoctoFilters["orderKey"] = orderKey);
+        orderValue && (directDoctoFilters["orderValue"] = orderValue);
+        search && (directDoctoFilters["search"] = search);
+        price && (directDoctoFilters["price"] = price);
+        best && (directDoctoFilters["best"] = best);
+        governorate && (directDoctoFilters["governorate"] = governorate);
+        center && (directDoctoFilters["center"] = center);
+        return this.doctorService.getAllDoctors(directDoctoFilters);
+    }
 };
 exports.DoctorController = DoctorController;
 __decorate([
@@ -95,12 +121,21 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], DoctorController.prototype, "doctorLogin", null);
 __decorate([
+    (0, common_1.Post)('/clinc-and-working-hours'),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [doctor_dto_1.ClincAndWorkingDaysDto, Object]),
+    __metadata("design:returntype", Promise)
+], DoctorController.prototype, "addClincAndWorkingHours", null);
+__decorate([
     (0, common_1.Put)('/update-my-profile'),
     (0, swagger_1.ApiBearerAuth)('access-token'),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [doctor_dto_1.DoctorUpdateRawDataDto, Request]),
+    __metadata("design:paramtypes", [doctor_dto_1.DoctorUpdateRawDataDto, Object]),
     __metadata("design:returntype", Promise)
 ], DoctorController.prototype, "updateMyDoctorProfileRawData", null);
 __decorate([
@@ -144,7 +179,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [doctor_dto_1.doctorProfileChooseCategoryDto, Request]),
+    __metadata("design:paramtypes", [doctor_dto_1.doctorProfileChooseCategoryDto, Object]),
     __metadata("design:returntype", Promise)
 ], DoctorController.prototype, "chooseCategory", null);
 __decorate([
@@ -152,9 +187,45 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [doctor_dto_1.updatePasswordDto, Request]),
+    __metadata("design:paramtypes", [doctor_dto_1.updatePasswordDto, Object]),
     __metadata("design:returntype", Promise)
 ], DoctorController.prototype, "doctorProfileUpdatePassword", null);
+__decorate([
+    (0, common_1.Patch)(":id/view"),
+    (0, common_1.HttpCode)(204),
+    (0, swagger_1.ApiParam)({
+        name: "id",
+        description: "profile id",
+        required: true,
+        example: 1,
+        type: "number"
+    }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, doctor_dto_1.DoctorProfileViewerDto]),
+    __metadata("design:returntype", Promise)
+], DoctorController.prototype, "doctorProfileView", null);
+__decorate([
+    (0, common_1.Get)('/my-data'),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], DoctorController.prototype, "getMyData", null);
+__decorate([
+    (0, common_1.Get)('/all'),
+    (0, swagger_1.ApiQuery)({ name: "page", description: "pagination", required: false, example: 1 }),
+    (0, swagger_1.ApiQuery)({ name: "limit", description: "pagination", required: false, example: 10 }),
+    (0, swagger_1.ApiQuery)({ name: "orderKey", required: false, enum: doctor_dto_1.orderKeyEnums }),
+    (0, swagger_1.ApiQuery)({ name: "orderValue", required: false, enum: ["ASC", "DESC"] }),
+    (0, public_decorator_1.Public)(),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [doctor_dto_1.GetDoctorQueriesDto]),
+    __metadata("design:returntype", Promise)
+], DoctorController.prototype, "getAllDoctors", null);
 exports.DoctorController = DoctorController = __decorate([
     (0, common_1.Controller)('doctor'),
     __metadata("design:paramtypes", [doctor_service_1.DoctorService, jwt_utils_1.JwtUtilService])

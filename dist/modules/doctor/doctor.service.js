@@ -27,8 +27,11 @@ const config_1 = require("@nestjs/config");
 const doctor_verifyUpdateEmail_1 = require("../../common/pages/doctor.verifyUpdateEmail");
 const bcrypt_util_1 = require("../../common/utils/bcrypt.util");
 const category_service_1 = require("../category/category.service");
+const workinHours_entity_1 = require("../../shared/entities/workinHours.entity");
+const nestjs_typeorm_paginate_1 = require("nestjs-typeorm-paginate");
 let DoctorService = class DoctorService {
     doctorRepo;
+    workingHoursRepo;
     credintialService;
     planService;
     codeService;
@@ -38,8 +41,9 @@ let DoctorService = class DoctorService {
     config;
     bcryptService;
     categoryService;
-    constructor(doctorRepo, credintialService, planService, codeService, emailService, otpService, jwtService, config, bcryptService, categoryService) {
+    constructor(doctorRepo, workingHoursRepo, credintialService, planService, codeService, emailService, otpService, jwtService, config, bcryptService, categoryService) {
         this.doctorRepo = doctorRepo;
+        this.workingHoursRepo = workingHoursRepo;
         this.credintialService = credintialService;
         this.planService = planService;
         this.codeService = codeService;
@@ -307,11 +311,100 @@ let DoctorService = class DoctorService {
             throw new common_1.ConflictException("Failed to update doctor's password");
         }
     }
+    async doctorProfileView(viewedDoctorId, data) {
+        const doctor = await this.doctorRepo.findOne({ where: { id: viewedDoctorId } });
+        if (!doctor)
+            throw new common_1.ConflictException("Account not found!!");
+        const viewerDoctor = (data.viewerId) ? await this.doctorRepo.findOne({ where: { id: data.viewerId } }) : null;
+        const readyViewerData = {
+            ip: data.viewerIp.toString(),
+            viewer: viewerDoctor ?? null,
+            date: new Date()
+        };
+        const isViewerExist = Array.from(doctor.views).some(view => view.ip.toString() === readyViewerData.ip.toString() ||
+            (readyViewerData.viewer && view.viewer?.id === readyViewerData.viewer.id));
+        if (!isViewerExist) {
+            doctor.views = [...(doctor.views || []), readyViewerData];
+            await this.doctorRepo.save(doctor);
+        }
+    }
+    async getMyData(id) {
+        const doctor = await this.doctorRepo.findOne({ where: { id } });
+        if (!doctor)
+            throw new common_1.ConflictException("Something went wrong, Account not found!!");
+        return doctor;
+    }
+    async clincAndWorkingDays(data, doctorId) {
+        const doctor = await this.doctorRepo.findOne({ where: { id: doctorId } });
+        if (!doctor)
+            throw new common_1.NotFoundException("Cannot found doctor account.");
+        const { clinc, workingHours } = data;
+        return await this.doctorRepo.manager.transaction(async (manager) => {
+            doctor.clinc = {
+                name: clinc.name || doctor.clinc.name,
+                description: clinc.description || doctor.clinc.description,
+                address: clinc.address || doctor.clinc.address,
+                phone: clinc.phone || doctor.clinc.phone,
+                whats: clinc.whats || doctor.clinc.whats,
+                landingPhone: clinc.landingPhone || doctor.clinc.landingPhone,
+                price: clinc.price || doctor.clinc.price,
+                rePrice: clinc.rePrice || doctor.clinc.rePrice,
+                imgs: doctor.clinc.imgs
+            };
+            const savedDoctor = await manager.save(doctor);
+            await manager.delete(this.workingHoursRepo.target, { doctor: savedDoctor });
+            const addWorkingHours = await Promise.all(workingHours.map((wh) => manager.save(this.workingHoursRepo.create({
+                day: wh.day,
+                time: {
+                    from: wh.time.from,
+                    to: wh.time.to,
+                },
+                doctor: savedDoctor,
+            }))));
+            if (!addWorkingHours || addWorkingHours.length === 0) {
+                throw new common_1.ConflictException("Failed to add Clinic Working hours.");
+            }
+            return {
+                doctor: savedDoctor,
+                workingHours: addWorkingHours
+            };
+        });
+    }
+    async getAllDoctors(queryObj) {
+        const qb = this.doctorRepo.createQueryBuilder("doctor");
+        if (queryObj.governorate) {
+            qb.andWhere("doctor.address ->> 'governorate' = :gov", { gov: queryObj.governorate });
+        }
+        if (queryObj.center) {
+            qb.andWhere("doctor.address ->> 'center' = :center", { center: queryObj.center });
+        }
+        if (queryObj.price) {
+            const { from, to } = queryObj.price;
+            if (from !== undefined) {
+                qb.andWhere("(doctor.clinc ->> 'price')::numeric >= :from", { from });
+            }
+            if (to !== undefined) {
+                qb.andWhere("(doctor.clinc ->> 'price')::numeric <= :to", { to });
+            }
+        }
+        if (queryObj.search) {
+            qb.andWhere(`(doctor.fullName ->> 'fname' ILIKE :search OR doctor.fullName ->> 'lname' ILIKE :search OR doctor.phone ILIKE :search OR doctor.email ILIKE :search)`, { search: `%${queryObj.search}%` });
+        }
+        if (queryObj.orderKey && queryObj.orderValue) {
+            qb.orderBy(`doctor.${queryObj.orderKey}`, queryObj.orderValue);
+        }
+        const page = queryObj.page || 1;
+        const limit = queryObj.limit || 10;
+        return (0, nestjs_typeorm_paginate_1.paginate)(qb, { page, limit });
+    }
 };
 exports.DoctorService = DoctorService;
 exports.DoctorService = DoctorService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_2.InjectRepository)(doctors_entity_1.DoctorEntity)),
-    __metadata("design:paramtypes", [typeorm_1.Repository, credential_service_1.CredentialService, plan_service_1.PlanService, code_util_1.CodeUtilService, mail_util_1.MailUtilService, otp_util_1.OtpUtilService, jwt_utils_1.JwtUtilService, config_1.ConfigService, bcrypt_util_1.BcryptUtilService, category_service_1.CategoryService])
+    __param(1, (0, typeorm_2.InjectRepository)(workinHours_entity_1.WorkingHoursEntity)),
+    __metadata("design:paramtypes", [typeorm_1.Repository,
+        typeorm_1.Repository,
+        credential_service_1.CredentialService, plan_service_1.PlanService, code_util_1.CodeUtilService, mail_util_1.MailUtilService, otp_util_1.OtpUtilService, jwt_utils_1.JwtUtilService, config_1.ConfigService, bcrypt_util_1.BcryptUtilService, category_service_1.CategoryService])
 ], DoctorService);
 //# sourceMappingURL=doctor.service.js.map

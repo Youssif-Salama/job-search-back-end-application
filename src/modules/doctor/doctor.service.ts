@@ -1,5 +1,5 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { AddDoctorDto, doctorProfileChooseCategoryDto, doctorProfileResetPasswordDoDto, doctorProfileResetPasswordDto, doctorProfleVerifeAccountEmailDto, DoctorUpdateRawDataDto, LoginDoctorDto, updatePasswordDto } from 'src/shared/dtos/doctor.dto';
+import { AddDoctorDto, ClincAndWorkingDaysDto, doctorProfileChooseCategoryDto, doctorProfileResetPasswordDoDto, doctorProfileResetPasswordDto, DoctorProfileViewerDto, doctorProfleVerifeAccountEmailDto, DoctorUpdateRawDataDto, GetDoctorQueriesDto, LoginDoctorDto, updatePasswordDto } from 'src/shared/dtos/doctor.dto';
 import { DoctorEntity } from 'src/shared/entities/doctors.entity';
 import { Not, Repository } from 'typeorm';
 import { CredentialService } from '../credential/credential.service';
@@ -15,11 +15,15 @@ import { Response } from 'express';
 import DoctorVerifyUpdateEmail from 'src/common/pages/doctor.verifyUpdateEmail';
 import { BcryptUtilService } from 'src/common/utils/bcrypt.util';
 import { CategoryService } from '../category/category.service';
+import { WorkingHoursEntity } from 'src/shared/entities/workinHours.entity';
+import { paginate } from 'nestjs-typeorm-paginate';
 
 
 @Injectable()
 export class DoctorService {
-    constructor(@InjectRepository(DoctorEntity) private readonly doctorRepo: Repository<DoctorEntity>, private readonly credintialService: CredentialService, private readonly planService: PlanService, private readonly codeService: CodeUtilService, private readonly emailService: MailUtilService, private readonly otpService: OtpUtilService, private readonly jwtService: JwtUtilService, private readonly config: ConfigService, private readonly bcryptService: BcryptUtilService, private readonly categoryService: CategoryService) { }
+    constructor(@InjectRepository(DoctorEntity) private readonly doctorRepo: Repository<DoctorEntity>,
+        @InjectRepository(WorkingHoursEntity) private readonly workingHoursRepo: Repository<WorkingHoursEntity>,
+        private readonly credintialService: CredentialService, private readonly planService: PlanService, private readonly codeService: CodeUtilService, private readonly emailService: MailUtilService, private readonly otpService: OtpUtilService, private readonly jwtService: JwtUtilService, private readonly config: ConfigService, private readonly bcryptService: BcryptUtilService, private readonly categoryService: CategoryService) { }
 
     async doctorSignup(data: AddDoctorDto): Promise<DoctorResponseType & { token: string }> {
         const { email, phone } = data;
@@ -314,4 +318,124 @@ export class DoctorService {
             throw new ConflictException("Failed to update doctor's password")
         }
     }
+
+    async doctorProfileView(viewedDoctorId: number, data: DoctorProfileViewerDto) {
+        const doctor = await this.doctorRepo.findOne({ where: { id: viewedDoctorId } });
+        if (!doctor) throw new ConflictException("Account not found!!");
+
+        // if viewer id
+        const viewerDoctor = (data.viewerId) ? await this.doctorRepo.findOne({ where: { id: data.viewerId } }) : null;
+        const readyViewerData = {
+            ip: data.viewerIp.toString(),
+            viewer: viewerDoctor ?? null,
+            date: new Date()
+        }
+
+        const isViewerExist = Array.from(doctor.views).some(view =>
+            view.ip.toString() === readyViewerData.ip.toString() ||
+            (readyViewerData.viewer && view.viewer?.id === readyViewerData.viewer.id)
+        );
+
+        if (!isViewerExist) {
+            doctor.views = [...(doctor.views || []), readyViewerData];
+            await this.doctorRepo.save(doctor);
+        }
+    }
+
+    async getMyData(id: number): Promise<DoctorEntity> {
+        const doctor = await this.doctorRepo.findOne({ where: { id } });
+        if (!doctor) throw new ConflictException("Something went wrong, Account not found!!");
+        return doctor;
+    }
+
+    async clincAndWorkingDays(data: ClincAndWorkingDaysDto, doctorId: number) {
+        const doctor = await this.doctorRepo.findOne({ where: { id: doctorId } });
+        if (!doctor) throw new NotFoundException("Cannot found doctor account.");
+
+        const { clinc, workingHours } = data;
+
+        return await this.doctorRepo.manager.transaction(async (manager) => {
+            doctor.clinc = {
+                name: clinc.name || doctor.clinc.name,
+                description: clinc.description || doctor.clinc.description,
+                address: clinc.address || doctor.clinc.address,
+                phone: clinc.phone || doctor.clinc.phone,
+                whats: clinc.whats || doctor.clinc.whats,
+                landingPhone: clinc.landingPhone || doctor.clinc.landingPhone,
+                price: clinc.price || doctor.clinc.price,
+                rePrice: clinc.rePrice || doctor.clinc.rePrice,
+                imgs: doctor.clinc.imgs
+            };
+
+            const savedDoctor = await manager.save(doctor);
+
+            await manager.delete(this.workingHoursRepo.target, { doctor: savedDoctor });
+
+            const addWorkingHours = await Promise.all(
+                workingHours.map((wh) =>
+                    manager.save(
+                        this.workingHoursRepo.create({
+                            day: wh.day,
+                            time: {
+                                from: wh.time.from,
+                                to: wh.time.to,
+                            },
+                            doctor: savedDoctor,
+                        })
+                    )
+                )
+            );
+
+
+
+
+            if (!addWorkingHours || addWorkingHours.length === 0) {
+                throw new ConflictException("Failed to add Clinic Working hours.")
+            }
+
+            return {
+                doctor: savedDoctor,
+                workingHours: addWorkingHours
+            };
+        });
+    }
+
+
+    async getAllDoctors(queryObj: GetDoctorQueriesDto) {
+        const qb = this.doctorRepo.createQueryBuilder("doctor");
+
+        if (queryObj.governorate) {
+            qb.andWhere("doctor.address ->> 'governorate' = :gov", { gov: queryObj.governorate });
+        }
+        if (queryObj.center) {
+            qb.andWhere("doctor.address ->> 'center' = :center", { center: queryObj.center });
+        }
+        if (queryObj.price) {
+            const { from, to } = queryObj.price;
+            if (from !== undefined) {
+                qb.andWhere("(doctor.clinc ->> 'price')::numeric >= :from", { from });
+            }
+            if (to !== undefined) {
+                qb.andWhere("(doctor.clinc ->> 'price')::numeric <= :to", { to });
+            }
+        }
+
+        if (queryObj.search) {
+            qb.andWhere(
+                `(doctor.fullName ->> 'fname' ILIKE :search OR doctor.fullName ->> 'lname' ILIKE :search OR doctor.phone ILIKE :search OR doctor.email ILIKE :search)`,
+                { search: `%${queryObj.search}%` }
+            );
+        }
+
+        if (queryObj.orderKey && queryObj.orderValue) {
+            qb.orderBy(`doctor.${queryObj.orderKey}`, queryObj.orderValue as "ASC" | "DESC");
+        }
+
+        const page = queryObj.page || 1;
+        const limit = queryObj.limit || 10;
+
+        return paginate<DoctorEntity>(qb, { page, limit });
+    }
+
+
 }

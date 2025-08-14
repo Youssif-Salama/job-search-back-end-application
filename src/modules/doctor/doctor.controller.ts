@@ -1,11 +1,12 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, Patch, Post, Put, Query, Req, Res } from '@nestjs/common';
-import { AddDoctorDto, doctorProfileChooseCategoryDto, doctorProfileResetPasswordDoDto, doctorProfileResetPasswordDto, doctorProfleVerifeAccountEmailDto, DoctorUpdateRawDataDto, LoginDoctorDto, updatePasswordDto } from 'src/shared/dtos/doctor.dto';
+import { BadRequestException, Body, Controller, Get, HttpCode, Param, Patch, Post, Put, Query, Req, Res } from '@nestjs/common';
+import { AddDoctorDto, ClincAndWorkingDaysDto, doctorProfileChooseCategoryDto, doctorProfileResetPasswordDoDto, doctorProfileResetPasswordDto, DoctorProfileViewerDto, doctorProfleVerifeAccountEmailDto, DoctorUpdateRawDataDto, GetDoctorQueriesDto, LoginDoctorDto, orderKeyEnums, updatePasswordDto } from 'src/shared/dtos/doctor.dto';
 import { DoctorService } from './doctor.service';
 import { Public } from 'src/common/decorators/public.decorator';
 import { DoctorResponseType } from 'src/shared/type/doctor.type';
-import { ApiBearerAuth, ApiExcludeEndpoint, ApiHideProperty } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiExcludeEndpoint, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { JwtUtilService } from 'src/common/utils/jwt.utils';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { DoctorEntity } from 'src/shared/entities/doctors.entity';
 
 @Controller('doctor')
 export class DoctorController {
@@ -28,6 +29,13 @@ export class DoctorController {
     @HttpCode(200)
     async doctorLogin(@Body() data: LoginDoctorDto): Promise<{ token: string }> {
         return this.doctorService.doctorLogin(data);
+    }
+
+    @Post('/clinc-and-working-hours')
+    @ApiBearerAuth('access-token')
+    async addClincAndWorkingHours(@Body() data: ClincAndWorkingDaysDto, @Req() req: Request) {
+        const { id } = req['user'];
+        return this.doctorService.clincAndWorkingDays(data, id);
     }
 
     @Put('/update-my-profile')
@@ -83,4 +91,49 @@ export class DoctorController {
         return this.doctorService.doctorProfileUpdatePassword(data, +id);
     }
 
+    @Patch(":id/view")
+    @HttpCode(204)
+    @ApiParam({
+        name: "id",
+        description: "profile id",
+        required: true,
+        example: 1,
+        type: "number"
+    })
+    async doctorProfileView(@Param('id') id: string, @Body() data: DoctorProfileViewerDto) {
+        return this.doctorService.doctorProfileView(+id, data)
+    }
+
+
+    @Get('/my-data')
+    @ApiBearerAuth('access-token')
+    async getMyData(@Req() req: Request): Promise<DoctorEntity> {
+        const { id } = req['user'];
+        return this.doctorService.getMyData(id);
+    }
+
+    @Get('/all')
+    @ApiQuery({ name: "page", description: "pagination", required: false, example: 1 })
+    @ApiQuery({ name: "limit", description: "pagination", required: false, example: 10 })
+    @ApiQuery({ name: "orderKey", required: false, enum: orderKeyEnums })
+    @ApiQuery({ name: "orderValue", required: false, enum: ["ASC", "DESC"] })
+    @Public()
+    async getAllDoctors(@Query() queries: GetDoctorQueriesDto) {
+        const { orderKey, orderValue, search, best, price, governorate, center, page = 1, limit = 1 } = queries;
+        const directDoctoFilters = {
+            page: Number(page),
+            limit: Number(limit),
+        };
+
+
+        orderKey && (directDoctoFilters["orderKey"] = orderKey);
+        orderValue && (directDoctoFilters["orderValue"] = orderValue);
+        search && (directDoctoFilters["search"] = search);
+        price && (directDoctoFilters["price"] = price);
+        best && (directDoctoFilters["best"] = best);
+        governorate && (directDoctoFilters["governorate"] = governorate);
+        center && (directDoctoFilters["center"] = center);
+
+        return this.doctorService.getAllDoctors(directDoctoFilters);
+    }
 }

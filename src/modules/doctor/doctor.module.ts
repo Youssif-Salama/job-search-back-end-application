@@ -12,10 +12,11 @@ import { OtpUtilService } from 'src/common/utils/otp.util';
 import { MailUtilService } from 'src/common/utils/mail.util';
 import { CategoryService } from '../category/category.service';
 import { CategoryModule } from '../category/category.module';
+import { WorkingHoursEntity } from 'src/shared/entities/workinHours.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([DoctorEntity]), PlanModule, CredentialModule,CategoryModule],
+  imports: [TypeOrmModule.forFeature([DoctorEntity,WorkingHoursEntity]), PlanModule, CredentialModule, CategoryModule],
   controllers: [DoctorController],
-  providers: [DoctorService, BcryptUtilService, CodeUtilService, JwtUtilService, OtpUtilService, MailUtilService,BcryptUtilService]
+  providers: [DoctorService, BcryptUtilService, CodeUtilService, JwtUtilService, OtpUtilService, MailUtilService, BcryptUtilService],
 })
 export class DoctorModule { }

@@ -60,15 +60,28 @@ export class DoctorEntity {
         count: number;
     };
 
+    @Column({ type: 'jsonb', nullable: true, default: () => "'[]'" })
+    views: {
+        viewer: DoctorEntity | null,
+        ip: string,
+        date: Date
+    }[];
+
     @Column({ type: 'jsonb', nullable: true })
     clinc: {
         name: Localization;
         description: Localization;
+        phone?: string
+        whats?: string
+        landingPhone?: string
+        price?: number
+        rePrice?: number
+        paymentWay?: "cash" | "vesa" | "bucket"
         address: {
             link: Localization;
-            description: Localization;
+            description?: Localization;
         };
-        imgs: FileClass[];
+        imgs?: FileClass[];
     };
 
     @Column({ type: 'jsonb', nullable: true })
@@ -86,6 +99,9 @@ export class DoctorEntity {
     @Column({ type: 'boolean', default: false })
     isVerified: boolean;
 
+    @Column({ type: 'float', default: 0 })
+    rating: number;
+
     @Column({ type: 'varchar', nullable: true })
     otp: string;
 
@@ -97,6 +113,7 @@ export class DoctorEntity {
 
     @Column({ type: 'int', nullable: true })
     lsUpBy: number;
+
 
     @ManyToOne(() => PlanEntity, plan => plan.doctors)
     plan: PlanEntity;

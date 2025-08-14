@@ -1,8 +1,9 @@
-import { IsEmail, IsNotEmpty, IsNumber, isString, IsString, Matches, MinLength, ValidateNested } from "class-validator";
+import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, isString, IsString, Matches, MinLength, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 import { CredentialEntity } from "../entities/credentials.entity";
 import { ApiProperty } from "@nestjs/swagger";
 import { Binary } from "typeorm";
+import { AddWoringHourDto } from "./working-hours.dto";
 
 class FullNameDto {
     @ApiProperty({
@@ -368,4 +369,166 @@ export class doctorProfleVerifeAccountEmailDto {
     @IsNotEmpty()
     @IsString()
     otp: string
+}
+
+
+export class DoctorProfileViewerDto {
+    @ApiProperty({
+        name: "viewerId",
+        description: "viewerId go here",
+        example: 2,
+        required: false,
+        type: "number"
+    })
+    @IsOptional()
+    @IsNumber()
+    viewerId: number;
+
+    @ApiProperty({
+        name: "viewerIp",
+        description: "viewerIp go here",
+        example: 2,
+        required: false,
+        type: "string"
+    })
+    @IsOptional()
+    @IsString()
+    viewerIp: number;
+}
+
+
+export enum PaymentWay {
+    CASH = "cash",
+    VESA = "vesa",
+    BUCKET = "bucket",
+}
+
+
+
+
+class ClincForWorkingHourDto {
+    @ApiProperty({
+        description: 'Clinic name in multiple languages',
+        example: { en: 'Family Clinic', ar: 'عيادة الأسرة' },
+        required: true,
+        type: Object,
+    })
+    @IsNotEmpty()
+    name: Localization;
+
+    @ApiProperty({
+        description: 'Clinic description in multiple languages',
+        example: { en: 'We care about your health', ar: 'نحن نهتم بصحتك' },
+        required: true,
+        type: Object,
+    })
+    @IsNotEmpty()
+    description: Localization;
+
+    @ApiProperty({
+        description: 'Clinic address including link and description',
+        required: true,
+        type: () => ClincAddressDto,
+    })
+    @ValidateNested()
+    @Type(() => ClincAddressDto)
+    address: ClincAddressDto;
+    @ApiProperty({
+        name: "phone",
+        description: "normal phone number, starts with +20",
+        type: "string",
+        required: true
+    })
+    @IsString()
+    @IsNotEmpty()
+    phone: string
+
+    @ApiProperty({
+        name: "whats",
+        description: "normal whats number",
+        type: "string",
+        required: true
+    })
+    @IsString()
+    @IsNotEmpty()
+    whats: string
+
+
+    @ApiProperty({
+        name: "landing phone",
+        description: "normal landing phone number",
+        type: "string",
+        required: true
+    })
+    @IsString()
+    @IsNotEmpty()
+    landingPhone: string
+
+    @ApiProperty({
+        name: "price",
+        description: "price",
+        type: "number",
+        required: true
+    })
+    @IsNumber()
+    @IsNotEmpty()
+    price: number
+
+
+    @ApiProperty({
+        name: "rePrice",
+        description: "re price",
+        type: "number",
+        required: true
+    })
+    @IsNumber()
+    @IsNotEmpty()
+    rePrice: number
+
+
+    @ApiProperty({
+        enum: PaymentWay,
+        description: "Payment method",
+        required: true
+    })
+    @IsEnum(PaymentWay)
+    paymentWay: PaymentWay;
+}
+
+export class ClincAndWorkingDaysDto {
+    @ApiProperty({
+        name: "clinc",
+        type: ClincForWorkingHourDto
+    })
+    @ValidateNested()
+    @Type(() => ClincForWorkingHourDto)
+    clinc: ClincForWorkingHourDto;
+
+    @ApiProperty({
+        name: "workingHours",
+        type: [AddWoringHourDto]
+    })
+    @ValidateNested({ each: true })
+    @Type(() => AddWoringHourDto)
+    workingHours: AddWoringHourDto[];
+}
+
+export enum orderKeyEnums {
+    RATING = "rating",
+    PRICE = "price",
+    VISITS = "views"
+}
+export class GetDoctorQueriesDto {
+    page?:number;
+    limit?:number;
+    search?:string;
+    orderKey?: orderKeyEnums;
+    governorate?:string;
+    center?:string;
+    orderValue?: "ASC" | "DESC";
+    best?: boolean;
+    price?: {
+        from:number,
+        to:number
+    }
 }

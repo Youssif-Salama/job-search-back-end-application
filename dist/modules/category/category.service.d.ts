@@ -9,7 +9,7 @@ export declare class CategoryService {
     updateCategory(data: updateCategoryDto, id: number, lsUpBy: number): Promise<CategoryEntity>;
     deleteCategory(id: number): Promise<CategoryEntity>;
     deleteAllCategories(): Promise<void>;
-    getAllCategories(page: number, limit: number, localeCode: string): Promise<Pagination<any>>;
+    getAllCategories(page: number, limit: number, localeCode?: string): Promise<Pagination<any>>;
     getOneCategory(id: number, localeCode: string): Promise<any>;
     findOneCategoryForDoctor(id: number): Promise<null | CategoryEntity>;
 }

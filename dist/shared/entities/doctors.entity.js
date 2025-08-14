@@ -41,10 +41,12 @@ let DoctorEntity = class DoctorEntity {
     fullName;
     address;
     code;
+    views;
     clinc;
     auth;
     isActive;
     isVerified;
+    rating;
     otp;
     createdAt;
     updatedAt;
@@ -90,6 +92,10 @@ __decorate([
     __metadata("design:type", Object)
 ], DoctorEntity.prototype, "code", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: 'jsonb', nullable: true, default: () => "'[]'" }),
+    __metadata("design:type", Array)
+], DoctorEntity.prototype, "views", void 0);
+__decorate([
     (0, typeorm_1.Column)({ type: 'jsonb', nullable: true }),
     __metadata("design:type", Object)
 ], DoctorEntity.prototype, "clinc", void 0);
@@ -105,6 +111,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'boolean', default: false }),
     __metadata("design:type", Boolean)
 ], DoctorEntity.prototype, "isVerified", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'float', default: 0 }),
+    __metadata("design:type", Number)
+], DoctorEntity.prototype, "rating", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
     __metadata("design:type", String)
