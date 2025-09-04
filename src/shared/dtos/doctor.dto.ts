@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, isString, IsString, Matches, MinLength, ValidateNested } from "class-validator";
+import { IsEmail, IsEnum, isNotEmpty, IsNotEmpty, IsNumber, IsOptional, isString, IsString, Matches, MinLength, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 import { CredentialEntity } from "../entities/credentials.entity";
 import { ApiProperty } from "@nestjs/swagger";
@@ -157,6 +157,15 @@ export class AddDoctorDto {
     })
     password: string;
 
+    @ApiProperty({
+        name: "syndicateNo",
+        description: "syndicate membership no",
+        required: true,
+        type: String
+    })
+    @IsNotEmpty()
+    @IsString()
+    syndicateNo: string;
 }
 
 
@@ -519,16 +528,16 @@ export enum orderKeyEnums {
     VISITS = "views"
 }
 export class GetDoctorQueriesDto {
-    page?:number;
-    limit?:number;
-    search?:string;
+    page?: number;
+    limit?: number;
+    search?: string;
     orderKey?: orderKeyEnums;
-    governorate?:string;
-    center?:string;
+    governorate?: string;
+    center?: string;
     orderValue?: "ASC" | "DESC";
     best?: boolean;
     price?: {
-        from:number,
-        to:number
+        from: number,
+        to: number
     }
 }

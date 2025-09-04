@@ -6,7 +6,7 @@ import { DoctorResponseType } from 'src/shared/type/doctor.type';
 import { ApiBearerAuth, ApiExcludeEndpoint, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { JwtUtilService } from 'src/common/utils/jwt.utils';
 import { Request, Response } from 'express';
-import { DoctorEntity } from 'src/shared/entities/doctors.entity';
+import { DoctorEntity, FileClass } from 'src/shared/entities/doctors.entity';
 
 @Controller('doctor')
 export class DoctorController {
@@ -27,7 +27,7 @@ export class DoctorController {
     @Post('/login')
     @Public()
     @HttpCode(200)
-    async doctorLogin(@Body() data: LoginDoctorDto): Promise<{ token: string }> {
+    async doctorLogin(@Body() data: LoginDoctorDto): Promise<{ token: string; doctor: { name: { fname: string; lname: string }; email: string; img: string | FileClass } }> {
         return this.doctorService.doctorLogin(data);
     }
 
@@ -135,5 +135,15 @@ export class DoctorController {
         center && (directDoctoFilters["center"] = center);
 
         return this.doctorService.getAllDoctors(directDoctoFilters);
+    }
+
+    @Patch("/handle-block")
+    @ApiParam({
+        name: "id"
+    })
+    @ApiBearerAuth("access-token")
+    async handleBlockDoctor(@Param() id: string): Promise<{ name: { fname: string; lname: string }, email: string; isActive: boolean }> {
+        const idNo = +id;
+        return this.doctorService.handleBlockDoctor(idNo);
     }
 }

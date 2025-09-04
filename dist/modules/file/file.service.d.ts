@@ -17,7 +17,6 @@ export declare class FileService {
             card: import("src/shared/entities/doctors.entity").FileClass | undefined;
             id: {
                 fid: import("src/shared/entities/doctors.entity").FileClass | undefined;
-                sid: import("src/shared/entities/doctors.entity").FileClass | undefined;
             };
         };
     }>;
@@ -26,7 +25,6 @@ export declare class FileService {
             card: import("src/shared/entities/doctors.entity").FileClass;
             id: {
                 fid: import("src/shared/entities/doctors.entity").FileClass;
-                sid: import("src/shared/entities/doctors.entity").FileClass;
             };
         };
     }>;

@@ -3,7 +3,7 @@ import { DoctorService } from './doctor.service';
 import { DoctorResponseType } from 'src/shared/type/doctor.type';
 import { JwtUtilService } from 'src/common/utils/jwt.utils';
 import { Request, Response } from 'express';
-import { DoctorEntity } from 'src/shared/entities/doctors.entity';
+import { DoctorEntity, FileClass } from 'src/shared/entities/doctors.entity';
 export declare class DoctorController {
     private readonly doctorService;
     private readonly jwtService;
@@ -16,6 +16,14 @@ export declare class DoctorController {
     }>;
     doctorLogin(data: LoginDoctorDto): Promise<{
         token: string;
+        doctor: {
+            name: {
+                fname: string;
+                lname: string;
+            };
+            email: string;
+            img: string | FileClass;
+        };
     }>;
     addClincAndWorkingHours(data: ClincAndWorkingDaysDto, req: Request): Promise<{
         doctor: DoctorEntity;
@@ -40,4 +48,12 @@ export declare class DoctorController {
     doctorProfileView(id: string, data: DoctorProfileViewerDto): Promise<void>;
     getMyData(req: Request): Promise<DoctorEntity>;
     getAllDoctors(queries: GetDoctorQueriesDto): Promise<import("nestjs-typeorm-paginate").Pagination<DoctorEntity, import("nestjs-typeorm-paginate").IPaginationMeta>>;
+    handleBlockDoctor(id: string): Promise<{
+        name: {
+            fname: string;
+            lname: string;
+        };
+        email: string;
+        isActive: boolean;
+    }>;
 }

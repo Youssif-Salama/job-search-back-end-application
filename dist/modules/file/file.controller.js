@@ -58,7 +58,6 @@ __decorate([
     (0, common_1.UseInterceptors)((0, platform_express_1.FileFieldsInterceptor)([
         { name: "card", maxCount: 1 },
         { name: "fid", maxCount: 1 },
-        { name: "sid", maxCount: 1 }
     ])),
     (0, swagger_1.ApiConsumes)("multipart/form-data"),
     (0, swagger_1.ApiBody)({
@@ -139,7 +138,6 @@ __decorate([
     (0, common_1.UseInterceptors)((0, platform_express_1.FileFieldsInterceptor)([
         { name: "card", maxCount: 1 },
         { name: "fid", maxCount: 1 },
-        { name: "sid", maxCount: 1 }
     ])),
     (0, swagger_1.ApiConsumes)("multipart/form-data"),
     (0, swagger_1.ApiBody)({

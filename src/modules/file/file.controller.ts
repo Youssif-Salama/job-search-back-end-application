@@ -22,7 +22,6 @@ import { Request } from "express";
 export type FilesType = {
     card?: Express.Multer.File[],
     fid?: Express.Multer.File[],
-    sid?: Express.Multer.File[]
 };
 
 @Controller('file')
@@ -36,7 +35,6 @@ export class FileController {
     @UseInterceptors(FileFieldsInterceptor([
         { name: "card", maxCount: 1 },
         { name: "fid", maxCount: 1 },
-        { name: "sid", maxCount: 1 }
     ]))
     @ApiConsumes("multipart/form-data")
     @ApiBody({
@@ -131,7 +129,6 @@ export class FileController {
     @UseInterceptors(FileFieldsInterceptor([
         { name: "card", maxCount: 1 },
         { name: "fid", maxCount: 1 },
-        { name: "sid", maxCount: 1 }
     ]))
     @ApiConsumes("multipart/form-data")
     @ApiBody({

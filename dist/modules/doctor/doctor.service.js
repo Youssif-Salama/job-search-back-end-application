@@ -137,9 +137,14 @@ let DoctorService = class DoctorService {
             throw new common_1.ConflictException("Account is not verified!");
         const token = await this.jwtService.generateToken({
             email: data.email,
-            password: data.password
+            id: doctor.id
         });
-        return { token };
+        const doctorData = {
+            name: doctor.fullName,
+            email: doctor.email,
+            img: doctor.img
+        };
+        return { token, doctor: doctorData };
     }
     async updateMyDoctorProfileRawData(data, doctorId) {
         const { email, phone, fullName, address, clinc } = data;
@@ -396,6 +401,23 @@ let DoctorService = class DoctorService {
         const page = queryObj.page || 1;
         const limit = queryObj.limit || 10;
         return (0, nestjs_typeorm_paginate_1.paginate)(qb, { page, limit });
+    }
+    async handleBlockDoctor(idNo) {
+        if (!idNo)
+            throw new common_1.BadRequestException("Doctor id not found.");
+        const doctor = await this.doctorRepo.findOne({
+            where: { id: idNo }
+        });
+        if (!doctor)
+            throw new common_1.ConflictException("Doctor not found.");
+        const updatedDoctorStatus = (doctor.isActive).toString() == "true" ? false : true;
+        doctor.isActive = updatedDoctorStatus;
+        await this.doctorRepo.save(doctor);
+        return {
+            name: doctor.fullName,
+            email: doctor.email,
+            isActive: doctor.isActive
+        };
     }
 };
 exports.DoctorService = DoctorService;

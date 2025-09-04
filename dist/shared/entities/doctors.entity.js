@@ -44,6 +44,7 @@ let DoctorEntity = class DoctorEntity {
     views;
     clinc;
     auth;
+    syndicateNo;
     isActive;
     isVerified;
     rating;
@@ -103,6 +104,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'jsonb', nullable: true }),
     __metadata("design:type", Object)
 ], DoctorEntity.prototype, "auth", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "varchar", nullable: false, default: "0" }),
+    __metadata("design:type", String)
+], DoctorEntity.prototype, "syndicateNo", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'boolean', default: false }),
     __metadata("design:type", Boolean)

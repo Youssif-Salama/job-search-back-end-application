@@ -134,6 +134,7 @@ class AddDoctorDto {
     fullName;
     address;
     password;
+    syndicateNo;
 }
 exports.AddDoctorDto = AddDoctorDto;
 __decorate([
@@ -192,6 +193,17 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], AddDoctorDto.prototype, "password", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        name: "syndicateNo",
+        description: "syndicate membership no",
+        required: true,
+        type: String
+    }),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], AddDoctorDto.prototype, "syndicateNo", void 0);
 class DoctorFilesDto {
     card;
     fid;

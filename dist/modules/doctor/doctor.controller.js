@@ -93,6 +93,10 @@ let DoctorController = class DoctorController {
         center && (directDoctoFilters["center"] = center);
         return this.doctorService.getAllDoctors(directDoctoFilters);
     }
+    async handleBlockDoctor(id) {
+        const idNo = +id;
+        return this.doctorService.handleBlockDoctor(idNo);
+    }
 };
 exports.DoctorController = DoctorController;
 __decorate([
@@ -226,6 +230,17 @@ __decorate([
     __metadata("design:paramtypes", [doctor_dto_1.GetDoctorQueriesDto]),
     __metadata("design:returntype", Promise)
 ], DoctorController.prototype, "getAllDoctors", null);
+__decorate([
+    (0, common_1.Patch)("/handle-block"),
+    (0, swagger_1.ApiParam)({
+        name: "id"
+    }),
+    (0, swagger_1.ApiBearerAuth)("access-token"),
+    __param(0, (0, common_1.Param)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], DoctorController.prototype, "handleBlockDoctor", null);
 exports.DoctorController = DoctorController = __decorate([
     (0, common_1.Controller)('doctor'),
     __metadata("design:paramtypes", [doctor_service_1.DoctorService, jwt_utils_1.JwtUtilService])

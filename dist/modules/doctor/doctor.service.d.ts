@@ -1,5 +1,5 @@
 import { AddDoctorDto, ClincAndWorkingDaysDto, doctorProfileChooseCategoryDto, doctorProfileResetPasswordDoDto, doctorProfileResetPasswordDto, DoctorProfileViewerDto, doctorProfleVerifeAccountEmailDto, DoctorUpdateRawDataDto, GetDoctorQueriesDto, LoginDoctorDto, updatePasswordDto } from 'src/shared/dtos/doctor.dto';
-import { DoctorEntity } from 'src/shared/entities/doctors.entity';
+import { DoctorEntity, FileClass } from 'src/shared/entities/doctors.entity';
 import { Repository } from 'typeorm';
 import { CredentialService } from '../credential/credential.service';
 import { PlanService } from '../plan/plan.service';
@@ -36,6 +36,14 @@ export declare class DoctorService {
     }>;
     doctorLogin(data: LoginDoctorDto): Promise<{
         token: string;
+        doctor: {
+            name: {
+                fname: string;
+                lname: string;
+            };
+            email: string;
+            img: string | FileClass;
+        };
     }>;
     updateMyDoctorProfileRawData(data: DoctorUpdateRawDataDto, doctorId: number): Promise<DoctorResponseType>;
     verifyUpdatedEmail(data: {
@@ -67,4 +75,12 @@ export declare class DoctorService {
         workingHours: WorkingHoursEntity[];
     }>;
     getAllDoctors(queryObj: GetDoctorQueriesDto): Promise<import("nestjs-typeorm-paginate").Pagination<DoctorEntity, import("nestjs-typeorm-paginate").IPaginationMeta>>;
+    handleBlockDoctor(idNo: number): Promise<{
+        name: {
+            fname: string;
+            lname: string;
+        };
+        email: string;
+        isActive: boolean;
+    }>;
 }

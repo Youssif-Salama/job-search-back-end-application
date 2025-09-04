@@ -54,9 +54,9 @@ export declare class DoctorEntity {
         card: FileClass;
         id: {
             fid: FileClass;
-            sid: FileClass;
         };
     };
+    syndicateNo: string;
     isActive: boolean;
     isVerified: boolean;
     rating: number;

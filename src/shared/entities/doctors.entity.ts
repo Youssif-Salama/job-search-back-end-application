@@ -89,9 +89,11 @@ export class DoctorEntity {
         card: FileClass;
         id: {
             fid: FileClass;
-            sid: FileClass;
         };
     };
+
+    @Column({ type: "varchar", nullable: false, default: "0" })
+    syndicateNo: string;
 
     @Column({ type: 'boolean', default: false })
     isActive: boolean;

@@ -3,7 +3,6 @@ import { Request } from "express";
 export type FilesType = {
     card?: Express.Multer.File[];
     fid?: Express.Multer.File[];
-    sid?: Express.Multer.File[];
 };
 export declare class FileController {
     private readonly fileService;
@@ -13,7 +12,6 @@ export declare class FileController {
             card: import("../../shared/entities/doctors.entity").FileClass;
             id: {
                 fid: import("../../shared/entities/doctors.entity").FileClass;
-                sid: import("../../shared/entities/doctors.entity").FileClass;
             };
         };
     }>;
@@ -28,7 +26,6 @@ export declare class FileController {
             card: import("../../shared/entities/doctors.entity").FileClass | undefined;
             id: {
                 fid: import("../../shared/entities/doctors.entity").FileClass | undefined;
-                sid: import("../../shared/entities/doctors.entity").FileClass | undefined;
             };
         };
     }>;

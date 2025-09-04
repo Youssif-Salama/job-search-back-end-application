@@ -103,7 +103,7 @@ export class AdminService {
     const isPasswordValid = await this.bcryptService.bcryptCompareUtil(password, admin.password);
     if (!isPasswordValid) throw new ConflictException("Something went wrong");
     const { name, id } = admin;
-    const token = this.jwtService.generateToken({ name, id, role: admin.role, isActive: admin.isActive, email });
+    const token = this.jwtService.generateToken({ name, id, role: admin.role, isActive: admin.isActive, email,pages:admin.pages });
     admin.otp = "";
     await this.adminRepo.save(admin);
     return { token }

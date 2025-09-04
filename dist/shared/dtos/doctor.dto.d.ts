@@ -27,6 +27,7 @@ export declare class AddDoctorDto {
     fullName: FullNameDto;
     address: AddressDto;
     password: string;
+    syndicateNo: string;
 }
 export declare class DoctorFilesDto {
     card: Binary;

@@ -1,6 +1,6 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { AddDoctorDto, ClincAndWorkingDaysDto, doctorProfileChooseCategoryDto, doctorProfileResetPasswordDoDto, doctorProfileResetPasswordDto, DoctorProfileViewerDto, doctorProfleVerifeAccountEmailDto, DoctorUpdateRawDataDto, GetDoctorQueriesDto, LoginDoctorDto, updatePasswordDto } from 'src/shared/dtos/doctor.dto';
-import { DoctorEntity } from 'src/shared/entities/doctors.entity';
+import { DoctorEntity, FileClass } from 'src/shared/entities/doctors.entity';
 import { Not, Repository } from 'typeorm';
 import { CredentialService } from '../credential/credential.service';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -120,7 +120,7 @@ export class DoctorService {
         }
     }
 
-    async doctorLogin(data: LoginDoctorDto): Promise<{ token: string }> {
+    async doctorLogin(data: LoginDoctorDto): Promise<{ token: string; doctor: { name: { fname: string; lname: string }; email: string; img: string | FileClass } }> {
         const doctor = await this.doctorRepo.findOne({
             where: { email: data.email }
         });
@@ -129,9 +129,14 @@ export class DoctorService {
         if (!doctor.isVerified) throw new ConflictException("Account is not verified!");
         const token = await this.jwtService.generateToken({
             email: data.email,
-            password: data.password
+            id: doctor.id
         });
-        return { token };
+        const doctorData = {
+            name: doctor.fullName,
+            email: doctor.email,
+            img: doctor.img
+        }
+        return { token, doctor: doctorData };
     }
 
     async updateMyDoctorProfileRawData(data: DoctorUpdateRawDataDto, doctorId: number): Promise<DoctorResponseType> {
@@ -438,4 +443,20 @@ export class DoctorService {
     }
 
 
+    async handleBlockDoctor(idNo: number): Promise<{ name: { fname: string; lname: string }, email: string; isActive: boolean }> {
+        if (!idNo) throw new BadRequestException("Doctor id not found.");
+        const doctor = await this.doctorRepo.findOne({
+            where: { id: idNo }
+        })
+        if (!doctor) throw new ConflictException("Doctor not found.");
+
+        const updatedDoctorStatus = (doctor.isActive).toString() == "true" ? false : true;
+        doctor.isActive = updatedDoctorStatus as boolean;
+        await this.doctorRepo.save(doctor);
+        return {
+            name: doctor.fullName,
+            email: doctor.email,
+            isActive: doctor.isActive
+        }
+    }
 }

@@ -89,11 +89,6 @@ let FileService = class FileService {
             if (doctorAuthFiles.id?.fid?.public_id)
                 publicIdsList.push(doctorAuthFiles.id.fid.public_id);
         }
-        if (files.sid?.length) {
-            filesToUpdate['sid'] = files.sid[0];
-            if (doctorAuthFiles.id?.sid?.public_id)
-                publicIdsList.push(doctorAuthFiles.id.sid.public_id);
-        }
         if (Object.keys(filesToUpdate).length === 0) {
             throw new common_1.BadRequestException('You must upload at least one file');
         }
@@ -108,10 +103,7 @@ let FileService = class FileService {
             id: {
                 fid: filesToUpdate['fid']
                     ? replacedFiles.find(f => f.public_id && f.public_id.includes('fid'))
-                    : doctorAuthFiles.id?.fid,
-                sid: filesToUpdate['sid']
-                    ? replacedFiles.find(f => f.public_id && f.public_id.includes('sid'))
-                    : doctorAuthFiles.id?.sid,
+                    : doctorAuthFiles.id?.fid
             }
         };
         const updateMyDoctorFiles = await this.doctorRepo.update(doctor.id, {
@@ -128,13 +120,12 @@ let FileService = class FileService {
         if (!doctor) {
             throw new common_1.NotFoundException('Doctor profile not found');
         }
-        if (!files.card?.length || !files.fid?.length || !files.sid?.length) {
+        if (!files.card?.length || !files.fid?.length) {
             throw new common_1.BadRequestException(['You must upload all three files: card and identification front and back']);
         }
         const filesObjs = [
             files.card[0],
             files.fid[0],
-            files.sid[0]
         ];
         const uploadedFiles = await this.storageService.uploadFiles(filesObjs, "doctors/auth");
         if (!uploadedFiles || uploadedFiles.length === 0) {
@@ -144,10 +135,9 @@ let FileService = class FileService {
             card: uploadedFiles.find(file => file.public_id && file.public_id.includes('card')) || doctor.auth?.card,
             id: {
                 fid: uploadedFiles.find(file => file.public_id && file.public_id.includes('fid')) || doctor.auth?.id?.fid,
-                sid: uploadedFiles.find(file => file.public_id && file.public_id.includes('sid')) || doctor.auth?.id?.sid
             }
         };
-        if (!doctorFiles.card || !doctorFiles.id.fid || !doctorFiles.id.sid) {
+        if (!doctorFiles.card || !doctorFiles.id.fid) {
             throw new common_1.BadRequestException('All auth files must be provided');
         }
         doctor.auth = doctorFiles;

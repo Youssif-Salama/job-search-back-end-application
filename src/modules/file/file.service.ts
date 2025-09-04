@@ -47,7 +47,7 @@ export class FileService {
                 img => !keepFiles.some(file => file.public_id === img.public_id)
             );
             const publicIdsToDelete = filesToDelete.map(file => file.public_id);
-            console.log({publicIdsToDelete})
+            console.log({ publicIdsToDelete })
             if (publicIdsToDelete.length > 0) {
                 const deletedFiles = await this.storageService.destroyFiles(publicIdsToDelete, "doctors/clinc");
                 if (!deletedFiles) throw new BadRequestException("Failed to delete old files, please try again");
@@ -84,7 +84,7 @@ export class FileService {
     }
 
     /**
-     * Update doctor's auth files (card, fid, sid).
+     * Update doctor's auth files (card, fid).
      * Only updates the files sent in the request.
      */
     async updateDoctorAuthFiles(
@@ -107,10 +107,6 @@ export class FileService {
             filesToUpdate['fid'] = files.fid[0];
             if (doctorAuthFiles.id?.fid?.public_id) publicIdsList.push(doctorAuthFiles.id.fid.public_id);
         }
-        if (files.sid?.length) {
-            filesToUpdate['sid'] = files.sid[0];
-            if (doctorAuthFiles.id?.sid?.public_id) publicIdsList.push(doctorAuthFiles.id.sid.public_id);
-        }
         if (Object.keys(filesToUpdate).length === 0) {
             throw new BadRequestException('You must upload at least one file');
         }
@@ -127,10 +123,7 @@ export class FileService {
             id: {
                 fid: filesToUpdate['fid']
                     ? replacedFiles.find(f => f.public_id && f.public_id.includes('fid'))
-                    : doctorAuthFiles.id?.fid,
-                sid: filesToUpdate['sid']
-                    ? replacedFiles.find(f => f.public_id && f.public_id.includes('sid'))
-                    : doctorAuthFiles.id?.sid,
+                    : doctorAuthFiles.id?.fid
             }
         };
         const updateMyDoctorFiles = await this.doctorRepo.update(doctor.id, {
@@ -155,13 +148,12 @@ export class FileService {
             throw new NotFoundException('Doctor profile not found');
         }
         // All three files are required for first time
-        if (!files.card?.length || !files.fid?.length || !files.sid?.length) {
+        if (!files.card?.length || !files.fid?.length) {
             throw new BadRequestException(['You must upload all three files: card and identification front and back']);
         }
         const filesObjs = [
-        files.card[0],
+            files.card[0],
             files.fid[0],
-            files.sid[0]
         ];
         // Upload all files
         const uploadedFiles = await this.storageService.uploadFiles(filesObjs, "doctors/auth");
@@ -173,11 +165,10 @@ export class FileService {
             card: uploadedFiles.find(file => file.public_id && file.public_id.includes('card')) || doctor.auth?.card,
             id: {
                 fid: uploadedFiles.find(file => file.public_id && file.public_id.includes('fid')) || doctor.auth?.id?.fid,
-                sid: uploadedFiles.find(file => file.public_id && file.public_id.includes('sid')) || doctor.auth?.id?.sid
             }
         };
         // Ensure all files exist
-        if (!doctorFiles.card || !doctorFiles.id.fid || !doctorFiles.id.sid) {
+        if (!doctorFiles.card || !doctorFiles.id.fid) {
             throw new BadRequestException('All auth files must be provided');
         }
 
