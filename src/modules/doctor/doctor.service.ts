@@ -438,6 +438,7 @@ export class DoctorService {
 
         const page = queryObj.page ? Number(queryObj.page) : 1;
         const limit = queryObj.limit ? Number(queryObj.limit) : 10;
+        
 
         return paginate<DoctorEntity>(qb, { page, limit, route: '/doctor' });
     }

@@ -633,11 +633,58 @@ class GetDoctorQueriesDto {
     limit;
     search;
     orderKey;
+    orderValue;
     governorate;
     center;
-    orderValue;
     best;
     price;
 }
 exports.GetDoctorQueriesDto = GetDoctorQueriesDto;
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(1),
+    __metadata("design:type", Number)
+], GetDoctorQueriesDto.prototype, "page", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(1),
+    __metadata("design:type", Number)
+], GetDoctorQueriesDto.prototype, "limit", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], GetDoctorQueriesDto.prototype, "search", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(orderKeyEnums),
+    __metadata("design:type", String)
+], GetDoctorQueriesDto.prototype, "orderKey", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(["ASC", "DESC"], { message: "orderValue must be ASC or DESC" }),
+    __metadata("design:type", String)
+], GetDoctorQueriesDto.prototype, "orderValue", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], GetDoctorQueriesDto.prototype, "governorate", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], GetDoctorQueriesDto.prototype, "center", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], GetDoctorQueriesDto.prototype, "best", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Object)
+], GetDoctorQueriesDto.prototype, "price", void 0);
 //# sourceMappingURL=doctor.dto.js.map

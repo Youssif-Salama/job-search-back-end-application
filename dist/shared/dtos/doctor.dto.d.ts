@@ -98,13 +98,13 @@ export declare class GetDoctorQueriesDto {
     limit?: number;
     search?: string;
     orderKey?: orderKeyEnums;
+    orderValue?: "ASC" | "DESC";
     governorate?: string;
     center?: string;
-    orderValue?: "ASC" | "DESC";
     best?: boolean;
     price?: {
-        from: number;
-        to: number;
+        from?: number;
+        to?: number;
     };
 }
 export {};

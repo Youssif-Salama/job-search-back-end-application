@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, isNotEmpty, IsNotEmpty, IsNumber, IsOptional, isString, IsString, Matches, MinLength, ValidateNested } from "class-validator";
+import { IsEmail, IsEnum, IsInt, isNotEmpty, IsNotEmpty, IsNumber, IsOptional, isString, IsString, Matches, Min, MinLength, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 import { CredentialEntity } from "../entities/credentials.entity";
 import { ApiProperty } from "@nestjs/swagger";
@@ -527,17 +527,47 @@ export enum orderKeyEnums {
     PRICE = "price",
     VISITS = "views"
 }
+
+
 export class GetDoctorQueriesDto {
-    page?: number;
-    limit?: number;
-    search?: string;
-    orderKey?: orderKeyEnums;
-    governorate?: string;
-    center?: string;
-    orderValue?: "ASC" | "DESC";
-    best?: boolean;
-    price?: {
-        from: number,
-        to: number
-    }
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  limit?: number;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @IsOptional()
+  @IsEnum(orderKeyEnums)
+  orderKey?: orderKeyEnums;
+
+  @IsOptional()
+  @IsEnum(["ASC", "DESC"], { message: "orderValue must be ASC or DESC" })
+  orderValue?: "ASC" | "DESC";
+
+  @IsOptional()
+  @IsString()
+  governorate?: string;
+
+  @IsOptional()
+  @IsString()
+  center?: string;
+
+  @IsOptional()
+  best?: boolean;
+
+  @IsOptional()
+  price?: {
+    from?: number;
+    to?: number;
+  };
 }

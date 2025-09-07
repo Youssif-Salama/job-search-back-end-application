@@ -119,7 +119,8 @@ export class DoctorController {
     @ApiQuery({ name: "orderValue", required: false, enum: ["ASC", "DESC"] })
     @Public()
     async getAllDoctors(@Query() queries: GetDoctorQueriesDto) {
-        const { orderKey, orderValue, search, best, price, governorate, center, page = 1, limit = 1 } = queries;
+        const { orderKey, orderValue, search, best, price, governorate, center, page, limit } = queries;
+
         const directDoctoFilters = {
             page: Number(page),
             limit: Number(limit),

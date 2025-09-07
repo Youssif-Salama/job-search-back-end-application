@@ -398,9 +398,9 @@ let DoctorService = class DoctorService {
         if (queryObj.orderKey && queryObj.orderValue) {
             qb.orderBy(`doctor.${queryObj.orderKey}`, queryObj.orderValue);
         }
-        const page = queryObj.page || 1;
-        const limit = queryObj.limit || 10;
-        return (0, nestjs_typeorm_paginate_1.paginate)(qb, { page, limit });
+        const page = queryObj.page ? Number(queryObj.page) : 1;
+        const limit = queryObj.limit ? Number(queryObj.limit) : 10;
+        return (0, nestjs_typeorm_paginate_1.paginate)(qb, { page, limit, route: '/doctor' });
     }
     async handleBlockDoctor(idNo) {
         if (!idNo)

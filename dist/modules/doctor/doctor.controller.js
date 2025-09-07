@@ -79,7 +79,7 @@ let DoctorController = class DoctorController {
         return this.doctorService.getMyData(id);
     }
     async getAllDoctors(queries) {
-        const { orderKey, orderValue, search, best, price, governorate, center, page = 1, limit = 1 } = queries;
+        const { orderKey, orderValue, search, best, price, governorate, center, page, limit } = queries;
         const directDoctoFilters = {
             page: Number(page),
             limit: Number(limit),

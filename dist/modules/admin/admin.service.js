@@ -112,7 +112,7 @@ let AdminService = class AdminService {
         if (!isPasswordValid)
             throw new common_1.ConflictException("Something went wrong");
         const { name, id } = admin;
-        const token = this.jwtService.generateToken({ name, id, role: admin.role, isActive: admin.isActive, email });
+        const token = this.jwtService.generateToken({ name, id, role: admin.role, isActive: admin.isActive, email, pages: admin.pages });
         admin.otp = "";
         await this.adminRepo.save(admin);
         return { token };
