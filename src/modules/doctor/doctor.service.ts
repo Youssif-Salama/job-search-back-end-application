@@ -436,8 +436,11 @@ export class DoctorService {
             qb.orderBy(`doctor.${queryObj.orderKey}`, queryObj.orderValue as "ASC" | "DESC");
         }
 
-        const page = queryObj.page || 1;
-        const limit = queryObj.limit || 10;
+        const page = queryObj.page ? Number(queryObj.page) : 1;
+        const limit = queryObj.limit ? Number(queryObj.limit) : 10;
+
+        return paginate<DoctorEntity>(qb, { page, limit });
+
 
         return paginate<DoctorEntity>(qb, { page, limit });
     }
