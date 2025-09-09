@@ -112,7 +112,7 @@ export class DoctorController {
         return this.doctorService.getMyData(id);
     }
 
-    @Get('/all')
+    @Get()
     @ApiQuery({ name: "page", description: "pagination", required: false, example: 1 })
     @ApiQuery({ name: "limit", description: "pagination", required: false, example: 10 })
     @ApiQuery({ name: "orderKey", required: false, enum: orderKeyEnums })

@@ -438,7 +438,7 @@ export class DoctorService {
 
         const page = queryObj.page ? Number(queryObj.page) : 1;
         const limit = queryObj.limit ? Number(queryObj.limit) : 10;
-        
+
 
         return paginate<DoctorEntity>(qb, { page, limit, route: '/doctor' });
     }
@@ -446,18 +446,21 @@ export class DoctorService {
 
     async handleBlockDoctor(idNo: number): Promise<{ name: { fname: string; lname: string }, email: string; isActive: boolean }> {
         if (!idNo) throw new BadRequestException("Doctor id not found.");
+
         const doctor = await this.doctorRepo.findOne({
             where: { id: idNo }
-        })
+        });
         if (!doctor) throw new ConflictException("Doctor not found.");
 
-        const updatedDoctorStatus = (doctor.isActive).toString() == "true" ? false : true;
-        doctor.isActive = updatedDoctorStatus as boolean;
+        doctor.isActive = !doctor.isActive;
+
         await this.doctorRepo.save(doctor);
+
         return {
             name: doctor.fullName,
             email: doctor.email,
             isActive: doctor.isActive
-        }
+        };
     }
+
 }
