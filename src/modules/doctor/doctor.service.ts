@@ -444,12 +444,10 @@ export class DoctorService {
     }
 
 
-    async handleBlockDoctor(idNo: number): Promise<{ name: { fname: string; lname: string }, email: string; isActive: boolean }> {
+    async handleBlockDoctor(idNo: number) {
         if (!idNo) throw new BadRequestException("Doctor id not found.");
 
-        const doctor = await this.doctorRepo.findOne({
-            where: { id: idNo }
-        });
+        const doctor = await this.doctorRepo.findOne({ where: { id: idNo } });
         if (!doctor) throw new ConflictException("Doctor not found.");
 
         doctor.isActive = !doctor.isActive;
@@ -457,10 +455,12 @@ export class DoctorService {
         await this.doctorRepo.save(doctor);
 
         return {
+            id: doctor.id,
             name: doctor.fullName,
             email: doctor.email,
             isActive: doctor.isActive
         };
     }
+
 
 }
