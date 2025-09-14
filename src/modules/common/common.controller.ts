@@ -27,4 +27,12 @@ export class CommonController {
     async contactUs(@Body() data: ContactUsDto) {
         return this.commonService.contactUs(data);
     }
+
+    @Get('analytics')
+    @HttpCode(200)
+    async getDashboardAnalytics() {
+        const analytics = await this.commonService.getDashboardAnalytics();
+        return analytics;
+    }
+
 }

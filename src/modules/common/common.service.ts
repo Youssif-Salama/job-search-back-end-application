@@ -61,11 +61,43 @@ export class CommonService {
             subject: "ايميل تواصل خاص من احد العملاء",
             template: "contact_us",
             context: {
-                name:data.name,
-                email:data.email,
-                message:data.message
+                name: data.name,
+                email: data.email,
+                message: data.message
             }
         })
         return null;
     }
+
+    async getDashboardAnalytics() {
+        const doctorsCount = await this.doctorRepo.count();
+        const activeDoctorsCount = await this.doctorRepo.count({
+            where: {
+                isActive: true
+            }
+        });
+        const inActiveDoctorsCount = doctorsCount - activeDoctorsCount;
+
+        const adminsCount = await this.adminRepo.count();
+        const activeAdminsCount = await this.adminRepo.count({
+            where: {
+                isActive: true
+            }
+        });
+        const inActiveAdminsCount = adminsCount - activeAdminsCount;
+
+        return {
+            doctors: {
+                count: doctorsCount,
+                activeCount: activeDoctorsCount,
+                inActiveCount: inActiveDoctorsCount
+            },
+            admins: {
+                count: adminsCount,
+                activeCount: activeAdminsCount,
+                inActiveCount: inActiveAdminsCount
+            },
+        };
+    }
+
 }
