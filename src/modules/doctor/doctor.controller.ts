@@ -143,7 +143,7 @@ export class DoctorController {
         name: "id"
     })
     @ApiBearerAuth("access-token")
-    async handleBlockDoctor(@Param() id: string): Promise<{ name: { fname: string; lname: string }, email: string; isActive: boolean }> {
+    async handleBlockDoctor(@Param() id: string): Promise<{ isActive: boolean }> {
         const idNo = +id;
         return this.doctorService.handleBlockDoctor(idNo);
     }
