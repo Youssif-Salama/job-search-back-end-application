@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 import { Public } from 'src/common/decorators/public.decorator';
 import { ContactUsDto, ResendOtpCodeDto, ResendOtpResponseDto } from 'src/shared/dtos/common.dto';
 import { CommonService } from './common.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('common')
 export class CommonController {
@@ -30,6 +31,7 @@ export class CommonController {
 
     @Get('analytics')
     @HttpCode(200)
+    @ApiBearerAuth("access-token")
     async getDashboardAnalytics() {
         const analytics = await this.commonService.getDashboardAnalytics();
         return analytics;
