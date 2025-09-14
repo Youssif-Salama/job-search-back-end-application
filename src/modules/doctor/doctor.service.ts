@@ -451,16 +451,11 @@ export class DoctorService {
         if (!doctor) throw new ConflictException("Doctor not found.");
 
         doctor.isActive = !doctor.isActive;
-
         await this.doctorRepo.save(doctor);
 
         return {
-            id: doctor.id,
-            name: doctor.fullName,
-            email: doctor.email,
-            isActive: doctor.isActive
+            isActive: Boolean(doctor.isActive)
         };
     }
-
 
 }
