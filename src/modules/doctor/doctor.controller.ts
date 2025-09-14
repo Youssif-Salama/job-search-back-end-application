@@ -138,13 +138,12 @@ export class DoctorController {
         return this.doctorService.getAllDoctors(directDoctoFilters);
     }
 
-    @Patch("/handle-block")
-    @ApiParam({
-        name: "id"
-    })
+    @Patch("/handle-block/:id")
+    @ApiParam({ name: "id", type: String })
     @ApiBearerAuth("access-token")
-    async handleBlockDoctor(@Param() id: string): Promise<{ isActive: boolean }> {
+    async handleBlockDoctor(@Param("id") id: string): Promise<{ isActive: boolean }> {
         const idNo = +id;
         return this.doctorService.handleBlockDoctor(idNo);
     }
+
 }

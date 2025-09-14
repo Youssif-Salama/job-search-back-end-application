@@ -16,7 +16,7 @@ export default class ResponseFormatInterceptor implements NestInterceptor {
       map((data) => {
         return {
           statusCode: context.switchToHttp().getResponse().statusCode,
-          data,
+          data:JSON.parse(JSON.stringify(data)),
           error: null,
           message: ['Success'],
         };
